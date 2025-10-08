@@ -1,0 +1,106 @@
+name: Build
+
+on:
+  workflow_dispatch:
+    inputs:
+      stage:
+        description: 'Stage to build'
+        required: true
+        default: 'dev'
+        type: choice
+        options:
+          - dev
+          - beta
+          - prod
+      ncs-commit:
+        description: 'NCS commit to build'
+        required: false
+        default: 'main'
+  workflow_call:
+    inputs:
+      stage:
+        description: 'Stage to build'
+        required: true
+        default: 'dev'
+        type: choice
+        options:
+          - dev
+          - beta
+          - prod
+      ncs-commit:
+        description: 'NCS commit to build'
+        required: false
+        default: 'main'
+    outputs:
+      run_id:
+        description: The run ID of the workflow to fetch artifacts from
+        value: ${{ jobs.build.outputs.run_id }}
+      version:
+        description: The version of the firmware built on this run_id
+        value: ${{ jobs.build.outputs.version }}
+
+jobs:
+  build:
+    runs-on: build_self_hosted
+    container: ghcr.io/zephyrproject-rtos/ci:v0.27.4
+    env:
+      CMAKE_PREFIX_PATH: /opt/toolchains
+    outputs:
+      run_id: ${{ github.run_id }}
+      version: ${{ env.VERSION }}
+    permissions:
+      contents: write
+      pull-requests: write
+    steps:
+      - name: Checkout CI
+        uses: actions/checkout@v4
+        with:
+          path: nrf-cloud-fw-ci
+
+      - name: Checkout NRF
+        uses: actions/checkout@v4
+        with:
+          repository: nrfconnect/sdk-nrf
+          ref: ${{ inputs.ncs-commit || github.event.inputs.ncs-commit }}
+          path: nrf
+
+      - name: Set BUILD_WORKFLOW_SHA
+        working-directory: nrf-cloud-fw-ci
+        run: echo "BUILD_WORKFLOW_SHA=$(sha256sum .github/workflows/build.yml | cut -c1-8)" >> $GITHUB_ENV
+
+      - name: Initialize Workspace
+        working-directory: nrf
+        run: |
+          if [ ! -d "../.west" ]; then
+            west init -l .
+          else
+            echo ".west folder already exists, skipping west init."
+          fi
+          echo "NRFSDK_SHA=$(git rev-parse --short HEAD)" >> $GITHUB_ENV
+          west update -o=--depth=1 -n
+          west blobs fetch hal_nordic
+
+      - name: Install dependencies
+        run: |
+          # The Matter IDL is part of requirements-build.txt, but it's not available
+          # in pypi so we need to install it from the source code
+          MATTER_IDL_PATH=modules/lib/matter/scripts/py_matter_idl
+          if [ -d $MATTER_IDL_PATH ]; then
+            pip install -e $MATTER_IDL_PATH
+          fi
+          pip install -r nrf/scripts/requirements-build.txt
+          rm -rf artifacts
+          mkdir -p artifacts
+
+      - name: Set VERSION environment variable
+        shell: bash
+        run: |
+          echo "VERSION=${{ env.BUILD_WORKFLOW_SHA }}-${{ env.NRFSDK_SHA }}-${{ inputs.stage || github.event.inputs.stage }}" >> $GITHUB_ENV
+
+      - name: Create Build Folders
+        run: |
+          mkdir -p build-{{ env.VERSION }}
+
+      - name: Build nrf_cloud_coap_device_message
+        run: |
+          west build -b thingy91x/nrf9151/ns --build-dir build-${{ env.VERSION }}/nrf_cloud_coap_device_message nrf/samples/cellular/nrf_cloud_coap_device_message
