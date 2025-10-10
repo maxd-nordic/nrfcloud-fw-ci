@@ -110,25 +110,29 @@ jobs:
         run: |
           mkdir -p artifacts/t91x/nrf_cloud_coap_device_message
           cp t91x/nrf_cloud_coap_device_message/dfu_application.zip artifacts/t91x/nrf_cloud_coap_device_message/
-          for file in zephyr.signed.hex .config zephyr.dts partitions.yml; do
+          cp t91x/nrf_cloud_coap_device_message/partitions.yml artifacts/t91x/nrf_cloud_coap_device_message/
+          for file in zephyr.signed.hex .config zephyr.dts; do
                 cp t91x/nrf_cloud_coap_device_message/nrf_cloud_coap_device_message/zephyr/$file artifacts/t91x/nrf_cloud_coap_device_message/
                 done
 
           mkdir -p artifacts/t91x/nrf_cloud_coap_cell_location
           cp t91x/nrf_cloud_coap_cell_location/dfu_application.zip artifacts/t91x/nrf_cloud_coap_cell_location/
-          for file in zephyr.signed.hex .config zephyr.dts partitions.yml; do
+          cp t91x/nrf_cloud_coap_cell_location/partitions.yml artifacts/t91x/nrf_cloud_coap_cell_location/
+          for file in zephyr.signed.hex .config zephyr.dts; do
                 cp t91x/nrf_cloud_coap_cell_location/nrf_cloud_coap_cell_location/zephyr/$file artifacts/t91x/nrf_cloud_coap_cell_location/
                 done
 
           mkdir -p artifacts/t91x/nrf_cloud_coap_fota
           cp t91x/nrf_cloud_coap_fota/dfu_application.zip artifacts/t91x/nrf_cloud_coap_fota/
-          for file in zephyr.signed.hex .config zephyr.dts partitions.yml; do
+          cp t91x/nrf_cloud_coap_fota/partitions.yml artifacts/t91x/nrf_cloud_coap_fota/
+          for file in zephyr.signed.hex .config zephyr.dts; do
                 cp t91x/nrf_cloud_coap_fota/nrf_cloud_coap_fota/zephyr/$file artifacts/t91x/nrf_cloud_coap_fota/
                 done
 
           mkdir -p artifacts/t91x/nrf_cloud_coap_fota_fmfu
           cp t91x/nrf_cloud_coap_fota_fmfu/dfu_application.zip artifacts/t91x/nrf_cloud_coap_fota_fmfu/
-          for file in zephyr.signed.hex .config zephyr.dts partitions.yml; do
+          cp t91x/nrf_cloud_coap_fota_fmfu/partitions.yml artifacts/t91x/nrf_cloud_coap_fota_fmfu/
+          for file in zephyr.signed.hex .config zephyr.dts; do
                 cp t91x/nrf_cloud_coap_fota_fmfu/nrf_cloud_coap_fota/zephyr/$file artifacts/t91x/nrf_cloud_coap_fota_fmfu/
                 done
 
