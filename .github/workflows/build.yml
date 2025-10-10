@@ -97,7 +97,7 @@ jobs:
 
       - name: Build CoAP samples
         run: |
-          CI_CONFIG_FRAGMENT=config_fragments/coap_${{ inputs.stage || github.event.inputs.stage }}.conf
+          CI_CONFIG_FRAGMENT=$PWD/nrf-cloud-fw-ci/config_fragments/coap_${{ inputs.stage || github.event.inputs.stage }}.conf
           BOARD=thingy91x/nrf9151/ns
           west build -b $BOARD --build-dir build-${{ env.VERSION }}/t91x/nrf_cloud_coap_device_message   nrf/samples/cellular/nrf_cloud_coap_device_message  -- -DEXTRA_CONF_FILE=$CI_CONFIG_FRAGMENT
           west build -b $BOARD --build-dir build-${{ env.VERSION }}/t91x/nrf_cloud_coap_cell_location    nrf/samples/cellular/nrf_cloud_coap_cell_location   -- -DEXTRA_CONF_FILE=$CI_CONFIG_FRAGMENT
