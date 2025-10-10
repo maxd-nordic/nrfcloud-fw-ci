@@ -57,6 +57,7 @@ jobs:
           repository: nrfconnect/sdk-nrf
           ref: ${{ inputs.ncs-commit || github.event.inputs.ncs-commit }}
           path: nrf
+          fetch-depth: 0
 
       - name: Set BUILD_WORKFLOW_SHA
         working-directory: nrf-cloud-fw-ci
