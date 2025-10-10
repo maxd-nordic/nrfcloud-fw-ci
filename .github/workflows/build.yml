@@ -57,7 +57,6 @@ jobs:
           repository: nrfconnect/sdk-nrf
           ref: ${{ inputs.ncs-commit || github.event.inputs.ncs-commit }}
           path: nrf
-          fetch-depth: 0
 
       - name: Set BUILD_WORKFLOW_SHA
         working-directory: nrf-cloud-fw-ci
@@ -66,7 +65,7 @@ jobs:
       - name: Set VERSION environment variable
         working-directory: nrf
         run: |
-          NRFSDK_SHA=$(git rev-parse --short HEAD)
+          NRFSDK_SHA=$(git rev-parse HEAD)
           echo "VERSION=${{ env.BUILD_WORKFLOW_SHA }}-$NRFSDK_SHA-${{ inputs.stage || github.event.inputs.stage }}" >> $GITHUB_ENV
 
       - name: Check if build exists in cache
