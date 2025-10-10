@@ -12,6 +12,7 @@ on:
         description: 'NCS commit to build'
         required: false
         default: 'main'
+        type: string
   workflow_call:
     inputs:
       stage:
@@ -23,6 +24,7 @@ on:
         description: 'NCS commit to build'
         required: false
         default: 'main'
+        type: string
     outputs:
       run_id:
         description: The run ID of the workflow to fetch artifacts from
