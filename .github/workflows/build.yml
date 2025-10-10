@@ -62,22 +62,11 @@ jobs:
         working-directory: nrf-cloud-fw-ci
         run: echo "BUILD_WORKFLOW_SHA=$(sha256sum .github/workflows/build.yml | cut -c1-8)" >> $GITHUB_ENV
 
-      - name: Initialize Workspace
+      - name: Set VERSION environment variable
         working-directory: nrf
         run: |
-          if [ ! -d "../.west" ]; then
-            west init -l .
-          else
-            echo ".west folder already exists, skipping west init."
-          fi
-          echo "NRFSDK_SHA=$(git rev-parse --short HEAD)" >> $GITHUB_ENV
-          west update -o=--depth=1 -n
-          west blobs fetch hal_nordic
-
-      - name: Set VERSION environment variable
-        shell: bash
-        run: |
-          echo "VERSION=${{ env.BUILD_WORKFLOW_SHA }}-${{ env.NRFSDK_SHA }}-${{ inputs.stage || github.event.inputs.stage }}" >> $GITHUB_ENV
+          NRFSDK_SHA=$(git rev-parse --short HEAD)
+          echo "VERSION=${{ env.BUILD_WORKFLOW_SHA }}-$NRFSDK_SHA-${{ inputs.stage || github.event.inputs.stage }}" >> $GITHUB_ENV
 
       - name: Check if build exists in cache
         id: cache-check
@@ -89,6 +78,18 @@ jobs:
             echo "cache-hit=false" >> $GITHUB_OUTPUT
             echo "Build ${{ env.VERSION }} not found in cache, proceeding with build"
           fi
+
+      - name: Initialize Workspace
+        if: steps.cache-check.outputs.cache-hit == 'true'
+        working-directory: nrf
+        run: |
+          if [ ! -d "../.west" ]; then
+            west init -l .
+          else
+            echo ".west folder already exists, skipping west init."
+          fi
+          west update -o=--depth=1 -n
+          west blobs fetch hal_nordic
 
       - name: Restore from cache
         if: steps.cache-check.outputs.cache-hit == 'true'
