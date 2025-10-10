@@ -80,8 +80,15 @@ jobs:
             echo "Build ${{ env.VERSION }} not found in cache, proceeding with build"
           fi
 
-      - name: Initialize Workspace
+      - name: Restore from cache
         if: steps.cache-check.outputs.cache-hit == 'true'
+        run: |
+          mkdir -p build-${{ env.VERSION }}
+          cp -r artifact-cache/build-${{ env.VERSION }}/* build-${{ env.VERSION }}/
+          echo "Restored build ${{ env.VERSION }} from cache"
+
+      - name: Initialize Workspace
+        if: steps.cache-check.outputs.cache-hit == 'false'
         working-directory: nrf
         run: |
           if [ ! -d "../.west" ]; then
@@ -91,13 +98,6 @@ jobs:
           fi
           west update -o=--depth=1 -n
           west blobs fetch hal_nordic
-
-      - name: Restore from cache
-        if: steps.cache-check.outputs.cache-hit == 'true'
-        run: |
-          mkdir -p build-${{ env.VERSION }}
-          cp -r artifact-cache/build-${{ env.VERSION }}/* build-${{ env.VERSION }}/
-          echo "Restored build ${{ env.VERSION }} from cache"
 
       - name: Install dependencies
         if: steps.cache-check.outputs.cache-hit == 'false'
