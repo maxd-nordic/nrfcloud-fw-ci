@@ -6,7 +6,7 @@ on:
       stage:
         description: 'Stage to build'
         required: true
-        default: 'dev'
+        default: 'prod'
         type: string
       ncs-commit:
         description: 'NCS commit to build'
@@ -18,7 +18,7 @@ on:
       stage:
         description: 'Stage to build'
         required: true
-        default: 'dev'
+        default: 'prod'
         type: string
       ncs-commit:
         description: 'NCS commit to build'
@@ -93,8 +93,46 @@ jobs:
 
       - name: Create Build Folders
         run: |
-          mkdir -p build-{{ env.VERSION }}
+          mkdir -p build-${{ env.VERSION }}
 
-      - name: Build nrf_cloud_coap_device_message
+      - name: Build CoAP samples
         run: |
-          west build -b thingy91x/nrf9151/ns --build-dir build-${{ env.VERSION }}/nrf_cloud_coap_device_message nrf/samples/cellular/nrf_cloud_coap_device_message
+          CI_CONFIG_FRAGMENT=config_fragments/coap_${{ inputs.stage || github.event.inputs.stage }}.conf
+          BOARD=thingy91x/nrf9151/ns
+          west build -b $BOARD --build-dir build-${{ env.VERSION }}/t91x/nrf_cloud_coap_device_message   nrf/samples/cellular/nrf_cloud_coap_device_message  -- -DEXTRA_CONF_FILE=$CI_CONFIG_FRAGMENT
+          west build -b $BOARD --build-dir build-${{ env.VERSION }}/t91x/nrf_cloud_coap_cell_location    nrf/samples/cellular/nrf_cloud_coap_cell_location   -- -DEXTRA_CONF_FILE=$CI_CONFIG_FRAGMENT
+          west build -b $BOARD --build-dir build-${{ env.VERSION }}/t91x/nrf_cloud_coap_fota             nrf/samples/cellular/nrf_cloud_coap_fota            -- -DEXTRA_CONF_FILE=$CI_CONFIG_FRAGMENT
+          west build -b $BOARD --build-dir build-${{ env.VERSION }}/t91x/nrf_cloud_coap_fota_fmfu        nrf/samples/cellular/nrf_cloud_coap_fota            -- -DEXTRA_CONF_FILE="nrf/samples/cellular/nrf_cloud_coap_fota/full_modem_fota.conf;$CI_CONFIG_FRAGMENT"
+
+      - name: Create Artifact bundle
+        working-directory: build-${{ env.VERSION }}
+        run: |
+          mkdir -p artifacts/t91x/nrf_cloud_coap_device_message
+          cp t91x/nrf_cloud_coap_device_message/dfu_application.zip artifacts/t91x/nrf_cloud_coap_device_message/
+          for file in zephyr.signed.hex .config zephyr.dts partitions.yml; do
+                cp t91x/nrf_cloud_coap_device_message/nrf_cloud_coap_device_message/zephyr/$file artifacts/t91x/nrf_cloud_coap_device_message/
+                done
+
+          mkdir -p artifacts/t91x/nrf_cloud_coap_cell_location
+          cp t91x/nrf_cloud_coap_cell_location/dfu_application.zip artifacts/t91x/nrf_cloud_coap_cell_location/
+          for file in zephyr.signed.hex .config zephyr.dts partitions.yml; do
+                cp t91x/nrf_cloud_coap_cell_location/nrf_cloud_coap_cell_location/zephyr/$file artifacts/t91x/nrf_cloud_coap_cell_location/
+                done
+
+          mkdir -p artifacts/t91x/nrf_cloud_coap_fota
+          cp t91x/nrf_cloud_coap_fota/dfu_application.zip artifacts/t91x/nrf_cloud_coap_fota/
+          for file in zephyr.signed.hex .config zephyr.dts partitions.yml; do
+                cp t91x/nrf_cloud_coap_fota/nrf_cloud_coap_fota/zephyr/$file artifacts/t91x/nrf_cloud_coap_fota/
+                done
+
+          mkdir -p artifacts/t91x/nrf_cloud_coap_fota_fmfu
+          cp t91x/nrf_cloud_coap_fota_fmfu/dfu_application.zip artifacts/t91x/nrf_cloud_coap_fota_fmfu/
+          for file in zephyr.signed.hex .config zephyr.dts partitions.yml; do
+                cp t91x/nrf_cloud_coap_fota_fmfu/nrf_cloud_coap_fota/zephyr/$file artifacts/t91x/nrf_cloud_coap_fota_fmfu/
+                done
+
+      - name: Upload Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-${{ env.VERSION }}
+          path: build-${{ env.VERSION }}/artifacts
