@@ -74,7 +74,31 @@ jobs:
           west update -o=--depth=1 -n
           west blobs fetch hal_nordic
 
+      - name: Set VERSION environment variable
+        shell: bash
+        run: |
+          echo "VERSION=${{ env.BUILD_WORKFLOW_SHA }}-${{ env.NRFSDK_SHA }}-${{ inputs.stage || github.event.inputs.stage }}" >> $GITHUB_ENV
+
+      - name: Check if build exists in cache
+        id: cache-check
+        run: |
+          if [ -d "build-cache/build-${{ env.VERSION }}" ]; then
+            echo "cache-hit=true" >> $GITHUB_OUTPUT
+            echo "Build ${{ env.VERSION }} found in cache, skipping build steps"
+          else
+            echo "cache-hit=false" >> $GITHUB_OUTPUT
+            echo "Build ${{ env.VERSION }} not found in cache, proceeding with build"
+          fi
+
+      - name: Restore from cache
+        if: steps.cache-check.outputs.cache-hit == 'true'
+        run: |
+          mkdir -p build-${{ env.VERSION }}
+          cp -r build-cache/build-${{ env.VERSION }}/* build-${{ env.VERSION }}/
+          echo "Restored build ${{ env.VERSION }} from cache"
+
       - name: Install dependencies
+        if: steps.cache-check.outputs.cache-hit == 'false'
         run: |
           # The Matter IDL is part of requirements-build.txt, but it's not available
           # in pypi so we need to install it from the source code
@@ -86,17 +110,14 @@ jobs:
           rm -rf artifacts
           mkdir -p artifacts
 
-      - name: Set VERSION environment variable
-        shell: bash
-        run: |
-          echo "VERSION=${{ env.BUILD_WORKFLOW_SHA }}-${{ env.NRFSDK_SHA }}-${{ inputs.stage || github.event.inputs.stage }}" >> $GITHUB_ENV
-
       - name: Create Build Folders
+        if: steps.cache-check.outputs.cache-hit == 'false'
         run: |
           rm -rf build*
           mkdir -p build-${{ env.VERSION }}
 
       - name: Build CoAP samples
+        if: steps.cache-check.outputs.cache-hit == 'false'
         run: |
           CI_CONFIG_FRAGMENT=$PWD/nrf-cloud-fw-ci/config_fragments/coap_${{ inputs.stage || github.event.inputs.stage }}.conf
           BOARD=thingy91x/nrf9151/ns
@@ -106,6 +127,7 @@ jobs:
           west build -b $BOARD --build-dir build-${{ env.VERSION }}/t91x/nrf_cloud_coap_fota_fmfu        nrf/samples/cellular/nrf_cloud_coap_fota            -- -DEXTRA_CONF_FILE="full_modem_fota.conf;$CI_CONFIG_FRAGMENT"
 
       - name: Create Artifact bundle
+        if: steps.cache-check.outputs.cache-hit == 'false'
         working-directory: build-${{ env.VERSION }}
         run: |
           mkdir -p artifacts/t91x/nrf_cloud_coap_device_message
@@ -141,3 +163,11 @@ jobs:
         with:
           name: build-${{ env.VERSION }}
           path: build-${{ env.VERSION }}/artifacts
+
+      # copy artifacts to cache, make sure only 10 builds are cached at the same time
+      - name: Cache Artifacts
+        if: steps.cache-check.outputs.cache-hit == 'false'
+        run: |
+          mkdir -p build-cache
+          ls -dt build-cache/*/ 2>/dev/null | tail -n +10 | xargs -d '\n' rm -rf -- 2>/dev/null || true
+          cp -r build-${{ env.VERSION }}/artifacts build-cache/build-${{ env.VERSION }}
