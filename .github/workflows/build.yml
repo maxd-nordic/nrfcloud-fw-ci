@@ -7,11 +7,7 @@ on:
         description: 'Stage to build'
         required: true
         default: 'dev'
-        type: choice
-        options:
-          - dev
-          - beta
-          - prod
+        type: string
       ncs-commit:
         description: 'NCS commit to build'
         required: false
@@ -22,11 +18,7 @@ on:
         description: 'Stage to build'
         required: true
         default: 'dev'
-        type: choice
-        options:
-          - dev
-          - beta
-          - prod
+        type: string
       ncs-commit:
         description: 'NCS commit to build'
         required: false
