@@ -93,6 +93,7 @@ jobs:
 
       - name: Create Build Folders
         run: |
+          rm -rf build*
           mkdir -p build-${{ env.VERSION }}
 
       - name: Build CoAP samples
@@ -102,7 +103,7 @@ jobs:
           west build -b $BOARD --build-dir build-${{ env.VERSION }}/t91x/nrf_cloud_coap_device_message   nrf/samples/cellular/nrf_cloud_coap_device_message  -- -DEXTRA_CONF_FILE=$CI_CONFIG_FRAGMENT
           west build -b $BOARD --build-dir build-${{ env.VERSION }}/t91x/nrf_cloud_coap_cell_location    nrf/samples/cellular/nrf_cloud_coap_cell_location   -- -DEXTRA_CONF_FILE=$CI_CONFIG_FRAGMENT
           west build -b $BOARD --build-dir build-${{ env.VERSION }}/t91x/nrf_cloud_coap_fota             nrf/samples/cellular/nrf_cloud_coap_fota            -- -DEXTRA_CONF_FILE=$CI_CONFIG_FRAGMENT
-          west build -b $BOARD --build-dir build-${{ env.VERSION }}/t91x/nrf_cloud_coap_fota_fmfu        nrf/samples/cellular/nrf_cloud_coap_fota            -- -DEXTRA_CONF_FILE="nrf/samples/cellular/nrf_cloud_coap_fota/full_modem_fota.conf;$CI_CONFIG_FRAGMENT"
+          west build -b $BOARD --build-dir build-${{ env.VERSION }}/t91x/nrf_cloud_coap_fota_fmfu        nrf/samples/cellular/nrf_cloud_coap_fota            -- -DEXTRA_CONF_FILE="full_modem_fota.conf;$CI_CONFIG_FRAGMENT"
 
       - name: Create Artifact bundle
         working-directory: build-${{ env.VERSION }}
