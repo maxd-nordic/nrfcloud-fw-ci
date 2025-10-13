@@ -22,3 +22,5 @@ cp -f $BUILD_DIR/merged*.hex $TARGET_DIR
 cp -f $BUILD_DIR/$SAMPLE_NAME/zephyr/.config $TARGET_DIR/dotconfig.txt
 cp -f $BUILD_DIR/$SAMPLE_NAME/zephyr/zephyr.signed.hex $TARGET_DIR
 cp -f $BUILD_DIR/$SAMPLE_NAME/zephyr/zephyr.dts $TARGET_DIR
+
+exit 0

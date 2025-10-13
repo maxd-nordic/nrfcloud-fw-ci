@@ -139,7 +139,7 @@ jobs:
           bash ../nrf-cloud-fw-ci/scripts/copy_artifacts.sh   nrf_cloud_coap_cell_location    t91x/nrf_cloud_coap_cell_location   artifacts/t91x
           bash ../nrf-cloud-fw-ci/scripts/copy_artifacts.sh   nrf_cloud_coap_fota             t91x/nrf_cloud_coap_fota            artifacts/t91x
           bash ../nrf-cloud-fw-ci/scripts/copy_artifacts.sh   nrf_cloud_coap_fota             t91x/nrf_cloud_coap_fota_fmfu       artifacts/t91x
-          bash ../nrf-cloud-fw-ci/scripts/copy_artifacts.sh   nrf_cloud_coap_device_message   9160/nrf_cloud_coap_fota_fmfu       artifacts/9160
+          bash ../nrf-cloud-fw-ci/scripts/copy_artifacts.sh   nrf_cloud_coap_device_message   9160/nrf_cloud_coap_device_message  artifacts/9160
 
       - name: Upload Artifacts
         uses: actions/upload-artifact@v4
