@@ -111,7 +111,7 @@ jobs:
           rm -rf artifacts
           mkdir -p artifacts
 
-      - name: Create Build Folders
+      - name: Prepare build folder
         if: steps.cache-check.outputs.cache-hit == 'false'
         run: |
           rm -rf build*
@@ -129,29 +129,37 @@ jobs:
           MSS_AGNSS_ONLY_FRAGMENT=$FRAGMENT_DIR/mss_agnss_only.conf
           BINARY_LOGS_FRAGMENT=$FRAGMENT_DIR/binary_logs.conf
           COAP_FOTA_APP_FRAGMENT=$FRAGMENT_DIR/coap_fota_app.conf
+          COAP_FOTA_BOOT_FRAGMENT=$FRAGMENT_DIR/coap_fota_boot.conf
+          COAP_FOTA_MODEM_FULL_FRAGMENT=$FRAGMENT_DIR/coap_fota_modem_full.conf
           # Thingy:91 X
           west build -b thingy91x/nrf9151/ns --build-dir build-${{ env.VERSION }}/thingy91x/nrf_cloud_coap_device_message        nrf/samples/cellular/nrf_cloud_coap_device_message  -- -DEXTRA_CONF_FILE=$CI_CONFIG_FRAGMENT
           west build -b thingy91x/nrf9151/ns --build-dir build-${{ env.VERSION }}/thingy91x/nrf_cloud_coap_cell_location         nrf/samples/cellular/nrf_cloud_coap_cell_location   -- -DEXTRA_CONF_FILE=$CI_CONFIG_FRAGMENT
           west build -b thingy91x/nrf9151/ns --build-dir build-${{ env.VERSION }}/thingy91x/nrf_cloud_coap_fota                  nrf/samples/cellular/nrf_cloud_coap_fota            -- -DEXTRA_CONF_FILE=$CI_CONFIG_FRAGMENT
           west build -b thingy91x/nrf9151/ns --build-dir build-${{ env.VERSION }}/thingy91x/nrf_cloud_coap_fota_fmfu             nrf/samples/cellular/nrf_cloud_coap_fota            -- -DEXTRA_CONF_FILE="full_modem_fota.conf;$CI_CONFIG_FRAGMENT"
           # nRF9160-DK
-          west build -b nrf9160dk/nrf9160/ns --build-dir build-${{ env.VERSION }}/nrf9160dk/nrf_cloud_multi_service_coap_agnss_only   nrf/samples/cellular/nrf_cloud_multi_service   -- -DEXTRA_CONF_FILE="overlay_coap.conf;$CI_CONFIG_FRAGMENT;$DEBUG_LOGS_FRAGMENT;$MODEM_LOG_FRAGMENT;$VERBOSE_ALERT_FRAGMENT;$MSS_AGNSS_ONLY_FRAGMENT"
-          west build -b nrf9160dk/nrf9160/ns --build-dir build-${{ env.VERSION }}/nrf9160dk/nrf_cloud_multi_service_coap_binary_log   nrf/samples/cellular/nrf_cloud_multi_service   -- -DEXTRA_CONF_FILE="overlay_coap.conf;overlay_nrfcloud_logging.conf;$CI_CONFIG_FRAGMENT;$DEBUG_LOGS_FRAGMENT;$VERBOSE_ALERT_FRAGMENT;$BINARY_LOGS_FRAGMENT"
-          west build -b nrf9160dk/nrf9160/ns --build-dir build-${{ env.VERSION }}/nrf9160dk/nrf_cloud_multi_service_coap_fota_app     nrf/samples/cellular/nrf_cloud_multi_service   -- -DEXTRA_CONF_FILE="overlay_coap.conf;$CI_CONFIG_FRAGMENT;$DEBUG_LOGS_FRAGMENT;$MODEM_LOG_FRAGMENT;$VERBOSE_ALERT_FRAGMENT;$COAP_FOTA_APP_FRAGMENT"
-
+          west build -b nrf9160dk/nrf9160/ns       --build-dir build-${{ env.VERSION }}/nrf9160dk/nrf_cloud_multi_service_coap_agnss_only      nrf/samples/cellular/nrf_cloud_multi_service   -- -DEXTRA_CONF_FILE="overlay_coap.conf;$CI_CONFIG_FRAGMENT;$DEBUG_LOGS_FRAGMENT;$MODEM_LOG_FRAGMENT;$VERBOSE_ALERT_FRAGMENT;$MSS_AGNSS_ONLY_FRAGMENT"
+          # west build -b nrf9160dk/nrf9160/ns --build-dir build-${{ env.VERSION }}/nrf9160dk/nrf_cloud_multi_service_coap_binary_log    nrf/samples/cellular/nrf_cloud_multi_service   -- -DEXTRA_CONF_FILE="overlay_coap.conf;overlay_nrfcloud_logging.conf;$CI_CONFIG_FRAGMENT;$DEBUG_LOGS_FRAGMENT;$VERBOSE_ALERT_FRAGMENT;$BINARY_LOGS_FRAGMENT"
+          west build -b nrf9160dk/nrf9160/ns       --build-dir build-${{ env.VERSION }}/nrf9160dk/nrf_cloud_multi_service_coap_fota_app_a      nrf/samples/cellular/nrf_cloud_multi_service   -- -DEXTRA_CONF_FILE="overlay_coap.conf;$CI_CONFIG_FRAGMENT;$DEBUG_LOGS_FRAGMENT;$MODEM_LOG_FRAGMENT;$VERBOSE_ALERT_FRAGMENT;$COAP_FOTA_APP_FRAGMENT"
+          west build -b nrf9160dk/nrf9160/ns       --build-dir build-${{ env.VERSION }}/nrf9160dk/nrf_cloud_multi_service_coap_fota_app_b      nrf/samples/cellular/nrf_cloud_multi_service   -- -DEXTRA_CONF_FILE="overlay_coap.conf;$CI_CONFIG_FRAGMENT;$DEBUG_LOGS_FRAGMENT;$MODEM_LOG_FRAGMENT;$VERBOSE_ALERT_FRAGMENT;$COAP_FOTA_APP_FRAGMENT" -DCONFIG_APP_VERSION="1.0.0-FOTA-TEST"
+          west build -b nrf9160dk/nrf9160/ns       --build-dir build-${{ env.VERSION }}/nrf9160dk/nrf_cloud_multi_service_coap_fota_boot_a     nrf/samples/cellular/nrf_cloud_multi_service   -- -DEXTRA_CONF_FILE="overlay_coap.conf;$CI_CONFIG_FRAGMENT;$DEBUG_LOGS_FRAGMENT;$MODEM_LOG_FRAGMENT;$VERBOSE_ALERT_FRAGMENT;$COAP_FOTA_BOOT_FRAGMENT" -DCONFIG_FW_INFO_FIRMWARE_VERSION=4 -DSB_CONFIG_SECURE_BOOT_APPCORE=y
+          west build -b nrf9160dk/nrf9160/ns       --build-dir build-${{ env.VERSION }}/nrf9160dk/nrf_cloud_multi_service_coap_fota_boot_b     nrf/samples/cellular/nrf_cloud_multi_service   -- -DEXTRA_CONF_FILE="overlay_coap.conf;$CI_CONFIG_FRAGMENT;$DEBUG_LOGS_FRAGMENT;$MODEM_LOG_FRAGMENT;$VERBOSE_ALERT_FRAGMENT;$COAP_FOTA_BOOT_FRAGMENT" -DCONFIG_FW_INFO_FIRMWARE_VERSION=5 -DSB_CONFIG_SECURE_BOOT_APPCORE=y
+          west build -b nrf9160dk@1.1.0/nrf9160/ns --build-dir build-${{ env.VERSION }}/nrf9160dk/nrf_cloud_multi_service_coap_fota_modem_full nrf/samples/cellular/nrf_cloud_multi_service   -- -DEXTRA_CONF_FILE="overlay_full_modem_fota.conf;overlay_coap.conf;$CI_CONFIG_FRAGMENT;$DEBUG_LOGS_FRAGMENT;$MODEM_LOG_FRAGMENT;$VERBOSE_ALERT_FRAGMENT;$COAP_FOTA_MODEM_FULL_FRAGMENT"
 
       - name: Create Artifact bundle
         if: steps.cache-check.outputs.cache-hit == 'false'
         working-directory: build-${{ env.VERSION }}
         run: |
-          # script                                            sample name                     build dir                                          target dir
-          bash ../nrf-cloud-fw-ci/scripts/copy_artifacts.sh   nrf_cloud_coap_device_message   thingy91x/nrf_cloud_coap_device_message            artifacts/thingy91x
-          bash ../nrf-cloud-fw-ci/scripts/copy_artifacts.sh   nrf_cloud_coap_cell_location    thingy91x/nrf_cloud_coap_cell_location             artifacts/thingy91x
-          bash ../nrf-cloud-fw-ci/scripts/copy_artifacts.sh   nrf_cloud_coap_fota             thingy91x/nrf_cloud_coap_fota                      artifacts/thingy91x
-          bash ../nrf-cloud-fw-ci/scripts/copy_artifacts.sh   nrf_cloud_coap_fota             thingy91x/nrf_cloud_coap_fota_fmfu                 artifacts/thingy91x
-          bash ../nrf-cloud-fw-ci/scripts/copy_artifacts.sh   nrf_cloud_multi_service         nrf9160dk/nrf_cloud_multi_service_coap_agnss_only  artifacts/nrf9160dk
-          bash ../nrf-cloud-fw-ci/scripts/copy_artifacts.sh   nrf_cloud_multi_service         nrf9160dk/nrf_cloud_multi_service_coap_binary_log  artifacts/nrf9160dk
-          bash ../nrf-cloud-fw-ci/scripts/copy_artifacts.sh   nrf_cloud_multi_service         nrf9160dk/nrf_cloud_multi_service_coap_fota_app    artifacts/nrf9160dk
+          # script                                            sample name                     build dir                                               target dir
+          bash ../nrf-cloud-fw-ci/scripts/copy_artifacts.sh   nrf_cloud_coap_device_message   thingy91x/nrf_cloud_coap_device_message                 artifacts/thingy91x
+          bash ../nrf-cloud-fw-ci/scripts/copy_artifacts.sh   nrf_cloud_coap_cell_location    thingy91x/nrf_cloud_coap_cell_location                  artifacts/thingy91x
+          bash ../nrf-cloud-fw-ci/scripts/copy_artifacts.sh   nrf_cloud_coap_fota             thingy91x/nrf_cloud_coap_fota                           artifacts/thingy91x
+          bash ../nrf-cloud-fw-ci/scripts/copy_artifacts.sh   nrf_cloud_coap_fota             thingy91x/nrf_cloud_coap_fota_fmfu                      artifacts/thingy91x
+          bash ../nrf-cloud-fw-ci/scripts/copy_artifacts.sh   nrf_cloud_multi_service         nrf9160dk/nrf_cloud_multi_service_coap_agnss_only       artifacts/nrf9160dk
+          bash ../nrf-cloud-fw-ci/scripts/copy_artifacts.sh   nrf_cloud_multi_service         nrf9160dk/nrf_cloud_multi_service_coap_fota_app_a       artifacts/nrf9160dk
+          bash ../nrf-cloud-fw-ci/scripts/copy_artifacts.sh   nrf_cloud_multi_service         nrf9160dk/nrf_cloud_multi_service_coap_fota_app_b       artifacts/nrf9160dk
+          bash ../nrf-cloud-fw-ci/scripts/copy_artifacts.sh   nrf_cloud_multi_service         nrf9160dk/nrf_cloud_multi_service_coap_fota_boot_a      artifacts/nrf9160dk
+          bash ../nrf-cloud-fw-ci/scripts/copy_artifacts.sh   nrf_cloud_multi_service         nrf9160dk/nrf_cloud_multi_service_coap_fota_boot_b      artifacts/nrf9160dk
+          bash ../nrf-cloud-fw-ci/scripts/copy_artifacts.sh   nrf_cloud_multi_service         nrf9160dk/nrf_cloud_multi_service_coap_fota_modem_full  artifacts/nrf9160dk
 
       - name: Upload Artifacts
         uses: actions/upload-artifact@v4
