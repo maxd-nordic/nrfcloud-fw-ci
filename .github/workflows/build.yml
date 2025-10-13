@@ -121,15 +121,13 @@ jobs:
         if: steps.cache-check.outputs.cache-hit == 'false'
         run: |
           CI_CONFIG_FRAGMENT=$PWD/nrf-cloud-fw-ci/config_fragments/coap_${{ inputs.stage || github.event.inputs.stage }}.conf
-
-          BOARD=thingy91x/nrf9151/ns
-          west build --build-dir build-${{ env.VERSION }}/t91x/nrf_cloud_coap_device_message   nrf/samples/cellular/nrf_cloud_coap_device_message  -- -DEXTRA_CONF_FILE=$CI_CONFIG_FRAGMENT
-          west build --build-dir build-${{ env.VERSION }}/t91x/nrf_cloud_coap_cell_location    nrf/samples/cellular/nrf_cloud_coap_cell_location   -- -DEXTRA_CONF_FILE=$CI_CONFIG_FRAGMENT
-          west build --build-dir build-${{ env.VERSION }}/t91x/nrf_cloud_coap_fota             nrf/samples/cellular/nrf_cloud_coap_fota            -- -DEXTRA_CONF_FILE=$CI_CONFIG_FRAGMENT
-          west build --build-dir build-${{ env.VERSION }}/t91x/nrf_cloud_coap_fota_fmfu        nrf/samples/cellular/nrf_cloud_coap_fota            -- -DEXTRA_CONF_FILE="full_modem_fota.conf;$CI_CONFIG_FRAGMENT"
-
-          BOARD=nrf9160dk/nrf9160/ns
-          west build --build-dir build-${{ env.VERSION }}/9160/nrf_cloud_coap_device_message   nrf/samples/cellular/nrf_cloud_coap_device_message  -- -DEXTRA_CONF_FILE=$CI_CONFIG_FRAGMENT
+          # Thingy:91 X
+          west build -b thingy91x/nrf9151/ns --build-dir build-${{ env.VERSION }}/t91x/nrf_cloud_coap_device_message   nrf/samples/cellular/nrf_cloud_coap_device_message  -- -DEXTRA_CONF_FILE=$CI_CONFIG_FRAGMENT
+          west build -b thingy91x/nrf9151/ns --build-dir build-${{ env.VERSION }}/t91x/nrf_cloud_coap_cell_location    nrf/samples/cellular/nrf_cloud_coap_cell_location   -- -DEXTRA_CONF_FILE=$CI_CONFIG_FRAGMENT
+          west build -b thingy91x/nrf9151/ns --build-dir build-${{ env.VERSION }}/t91x/nrf_cloud_coap_fota             nrf/samples/cellular/nrf_cloud_coap_fota            -- -DEXTRA_CONF_FILE=$CI_CONFIG_FRAGMENT
+          west build -b thingy91x/nrf9151/ns --build-dir build-${{ env.VERSION }}/t91x/nrf_cloud_coap_fota_fmfu        nrf/samples/cellular/nrf_cloud_coap_fota            -- -DEXTRA_CONF_FILE="full_modem_fota.conf;$CI_CONFIG_FRAGMENT"
+          # nRF9160-DK
+          west build -b nrf9160dk/nrf9160/ns --build-dir build-${{ env.VERSION }}/9160/nrf_cloud_coap_device_message   nrf/samples/cellular/nrf_cloud_coap_device_message  -- -DEXTRA_CONF_FILE=$CI_CONFIG_FRAGMENT
 
 
       - name: Create Artifact bundle
