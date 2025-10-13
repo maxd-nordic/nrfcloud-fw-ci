@@ -134,8 +134,8 @@ jobs:
           west build -b thingy91x/nrf9151/ns --build-dir build-${{ env.VERSION }}/thingy91x/nrf_cloud_coap_fota                  nrf/samples/cellular/nrf_cloud_coap_fota            -- -DEXTRA_CONF_FILE=$CI_CONFIG_FRAGMENT
           west build -b thingy91x/nrf9151/ns --build-dir build-${{ env.VERSION }}/thingy91x/nrf_cloud_coap_fota_fmfu             nrf/samples/cellular/nrf_cloud_coap_fota            -- -DEXTRA_CONF_FILE="full_modem_fota.conf;$CI_CONFIG_FRAGMENT"
           # nRF9160-DK
-          west build -b nrf9160dk/nrf9160/ns --build-dir build-${{ env.VERSION }}/nrf9160dk/nrf_cloud_multi_service_coap_agnss_only   nrf/samples/cellular/nrf_cloud_multi_service   -- -DEXTRA_CONF_FILE="$CI_CONFIG_FRAGMENT;$DEBUG_LOGS_FRAGMENT;$MODEM_LOG_FRAGMENT;$VERBOSE_ALERT_FRAGMENT;$MSS_AGNSS_ONLY_FRAGMENT"
-          west build -b nrf9160dk/nrf9160/ns --build-dir build-${{ env.VERSION }}/nrf9160dk/nrf_cloud_multi_service_coap_binary_log   nrf/samples/cellular/nrf_cloud_multi_service   -- -DEXTRA_CONF_FILE="$CI_CONFIG_FRAGMENT;$DEBUG_LOGS_FRAGMENT;$VERBOSE_ALERT_FRAGMENT;$BINARY_LOGS_FRAGMENT"
+          west build -b nrf9160dk/nrf9160/ns --build-dir build-${{ env.VERSION }}/nrf9160dk/nrf_cloud_multi_service_coap_agnss_only   nrf/samples/cellular/nrf_cloud_multi_service   -- -DEXTRA_CONF_FILE="overlay_coap.conf;$CI_CONFIG_FRAGMENT;$DEBUG_LOGS_FRAGMENT;$MODEM_LOG_FRAGMENT;$VERBOSE_ALERT_FRAGMENT;$MSS_AGNSS_ONLY_FRAGMENT"
+          west build -b nrf9160dk/nrf9160/ns --build-dir build-${{ env.VERSION }}/nrf9160dk/nrf_cloud_multi_service_coap_binary_log   nrf/samples/cellular/nrf_cloud_multi_service   -- -DEXTRA_CONF_FILE="overlay_coap.conf;overlay_nrfcloud_logging.conf;$CI_CONFIG_FRAGMENT;$DEBUG_LOGS_FRAGMENT;$VERBOSE_ALERT_FRAGMENT;$BINARY_LOGS_FRAGMENT"
 
 
       - name: Create Artifact bundle
