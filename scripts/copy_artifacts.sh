@@ -14,8 +14,11 @@ BUILD_BASENAME=$(basename $BUILD_DIR)
 TARGET_DIR=$ARTIFACTS_DIR/$BUILD_BASENAME
 
 mkdir -p $TARGET_DIR
-cp $BUILD_DIR/dfu_application.zip $TARGET_DIR
-cp $BUILD_DIR/partitions.yml $TARGET_DIR
+cp -f $BUILD_DIR/dfu_application.zip $TARGET_DIR
+cp -f $BUILD_DIR/dfu_mcuboot.zip $TARGET_DIR
+cp -f $BUILD_DIR/partitions.yml $TARGET_DIR
+cp -f $BUILD_DIR/build_info.yml $TARGET_DIR
+cp -f $BUILD_DIR/merged*.hex $TARGET_DIR
 for file in zephyr.signed.hex .config zephyr.dts; do
-      cp $BUILD_DIR/$SAMPLE_NAME/zephyr/$file $TARGET_DIR
+      cp -f $BUILD_DIR/$SAMPLE_NAME/zephyr/$file $TARGET_DIR
       done
