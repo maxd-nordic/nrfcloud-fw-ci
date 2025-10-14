@@ -13,10 +13,10 @@ on:
         required: false
         default: 'main'
         type: string
-      devices:
-        description: 'Devices to build for (space separated)'
+      device:
+        description: 'Device to build for'
         required: false
-        default: 'nrf9160dk nrf9151dk thingy91x'
+        default: 'thingy91x'
         type: string
   workflow_call:
     inputs:
@@ -30,10 +30,10 @@ on:
         required: false
         default: 'main'
         type: string
-      devices:
-        description: 'Devices to build for (space separated)'
+      device:
+        description: 'Device to build for'
         required: false
-        default: 'nrf9160dk nrf9151dk thingy91x'
+        default: 'thingy91x'
         type: string
     outputs:
       run_id:
@@ -135,7 +135,9 @@ jobs:
         run: |
           FRAGMENT_DIR=$PWD/nrf-cloud-fw-ci/config_fragments/
           echo "FRAGMENT_DIR=$FRAGMENT_DIR" >> $GITHUB_ENV
-          echo "CI_CONFIG_FRAGMENT=$FRAGMENT_DIR/stages_general/coap_${{ inputs.stage }}.conf" >> $GITHUB_ENV
+          echo "COAP_SERVER_FRAGMENT=$FRAGMENT_DIR/stages_general/coap_${{ inputs.stage }}.conf" >> $GITHUB_ENV
+          echo "MQTT_SERVER_FRAGMENT=$FRAGMENT_DIR/stages_general/mqtt_${{ inputs.stage }}.conf" >> $GITHUB_ENV
+          echo "REST_SERVER_FRAGMENT=$FRAGMENT_DIR/stages_general/rest_${{ inputs.stage }}.conf" >> $GITHUB_ENV
           echo "COAP_PROVISIONING_SERVER_FRAGMENT=$FRAGMENT_DIR/stages_provisioning/coap_${{ inputs.stage }}.conf" >> $GITHUB_ENV
           echo "HTTP_PROVISIONING_SERVER_FRAGMENT=$FRAGMENT_DIR/stages_provisioning/http_${{ inputs.stage }}.conf" >> $GITHUB_ENV
           echo "DEBUG_LOGS_FRAGMENT=$FRAGMENT_DIR/debug_logs.conf" >> $GITHUB_ENV
@@ -154,31 +156,42 @@ jobs:
         shell: bash
         run: |
           # Thingy:91 X
-          if [[ " ${{ inputs.devices }} " == *" thingy91x "* ]]; then
+          if [[ " ${{ inputs.device }} " == "thingy91x" ]]; then
             echo "Building for Thingy:91 X"
-            west build -b thingy91x/nrf9151/ns --build-dir build-$VERSION/thingy91x-nrf_cloud_coap_device_message        nrf/samples/cellular/nrf_cloud_coap_device_message  -- -DEXTRA_CONF_FILE=$CI_CONFIG_FRAGMENT
-            west build -b thingy91x/nrf9151/ns --build-dir build-$VERSION/thingy91x-nrf_cloud_coap_cell_location         nrf/samples/cellular/nrf_cloud_coap_cell_location   -- -DEXTRA_CONF_FILE=$CI_CONFIG_FRAGMENT
-            west build -b thingy91x/nrf9151/ns --build-dir build-$VERSION/thingy91x-nrf_cloud_coap_fota                  nrf/samples/cellular/nrf_cloud_coap_fota            -- -DEXTRA_CONF_FILE=$CI_CONFIG_FRAGMENT
-            west build -b thingy91x/nrf9151/ns --build-dir build-$VERSION/thingy91x-nrf_cloud_coap_fota_fmfu             nrf/samples/cellular/nrf_cloud_coap_fota            -- -DEXTRA_CONF_FILE="full_modem_fota.conf;$CI_CONFIG_FRAGMENT"
+            west build -b thingy91x/nrf9151/ns --build-dir build-$VERSION/thingy91x-nrf_cloud_coap_device_message        nrf/samples/cellular/nrf_cloud_coap_device_message  -- -DEXTRA_CONF_FILE=$COAP_SERVER_FRAGMENT
+            west build -b thingy91x/nrf9151/ns --build-dir build-$VERSION/thingy91x-nrf_cloud_coap_cell_location         nrf/samples/cellular/nrf_cloud_coap_cell_location   -- -DEXTRA_CONF_FILE=$COAP_SERVER_FRAGMENT
+            west build -b thingy91x/nrf9151/ns --build-dir build-$VERSION/thingy91x-nrf_cloud_coap_fota                  nrf/samples/cellular/nrf_cloud_coap_fota            -- -DEXTRA_CONF_FILE=$COAP_SERVER_FRAGMENT
+            west build -b thingy91x/nrf9151/ns --build-dir build-$VERSION/thingy91x-nrf_cloud_coap_fota_fmfu             nrf/samples/cellular/nrf_cloud_coap_fota            -- -DEXTRA_CONF_FILE="full_modem_fota.conf;$COAP_SERVER_FRAGMENT"
           fi
           # nRF9160-DK
-          if [[ " ${{ inputs.devices }} " == *" nrf9160dk "* ]]; then
-            west build -b nrf9160dk/nrf9160/ns       --build-dir build-$VERSION/nrf9160dk-nrf_cloud_multi_service_coap_agnss_only      nrf/samples/cellular/nrf_cloud_multi_service   -- -DEXTRA_CONF_FILE="overlay_coap.conf;$CI_CONFIG_FRAGMENT;$DEBUG_LOGS_FRAGMENT;$MODEM_LOG_FRAGMENT;$VERBOSE_ALERT_FRAGMENT;$MSS_AGNSS_ONLY_FRAGMENT"
-            west build -b nrf9160dk/nrf9160/ns       --build-dir build-$VERSION/nrf9160dk-nrf_cloud_multi_service_coap_binary_log      nrf/samples/cellular/nrf_cloud_multi_service   -- -DEXTRA_CONF_FILE="overlay_coap.conf;overlay_nrfcloud_logging.conf;$CI_CONFIG_FRAGMENT;$DEBUG_LOGS_FRAGMENT;$VERBOSE_ALERT_FRAGMENT;$BINARY_LOGS_FRAGMENT"
-            west build -b nrf9160dk/nrf9160/ns       --build-dir build-$VERSION/nrf9160dk-nrf_cloud_multi_service_coap_fota_app_a      nrf/samples/cellular/nrf_cloud_multi_service   -- -DEXTRA_CONF_FILE="overlay_coap.conf;$CI_CONFIG_FRAGMENT;$DEBUG_LOGS_FRAGMENT;$MODEM_LOG_FRAGMENT;$VERBOSE_ALERT_FRAGMENT;$COAP_FOTA_APP_FRAGMENT"
-            west build -b nrf9160dk/nrf9160/ns       --build-dir build-$VERSION/nrf9160dk-nrf_cloud_multi_service_coap_fota_app_b      nrf/samples/cellular/nrf_cloud_multi_service   -- -DEXTRA_CONF_FILE="overlay_coap.conf;$CI_CONFIG_FRAGMENT;$DEBUG_LOGS_FRAGMENT;$MODEM_LOG_FRAGMENT;$VERBOSE_ALERT_FRAGMENT;$COAP_FOTA_APP_FRAGMENT" '-DCONFIG_APP_VERSION="1.0.0-FOTA-TEST"'
-            west build -b nrf9160dk/nrf9160/ns       --build-dir build-$VERSION/nrf9160dk-nrf_cloud_multi_service_coap_fota_boot_a     nrf/samples/cellular/nrf_cloud_multi_service   -- -DEXTRA_CONF_FILE="overlay_coap.conf;$CI_CONFIG_FRAGMENT;$DEBUG_LOGS_FRAGMENT;$MODEM_LOG_FRAGMENT;$VERBOSE_ALERT_FRAGMENT;$COAP_FOTA_BOOT_FRAGMENT" -DCONFIG_FW_INFO_FIRMWARE_VERSION=4 -DSB_CONFIG_SECURE_BOOT_APPCORE=y
-            west build -b nrf9160dk/nrf9160/ns       --build-dir build-$VERSION/nrf9160dk-nrf_cloud_multi_service_coap_fota_boot_b     nrf/samples/cellular/nrf_cloud_multi_service   -- -DEXTRA_CONF_FILE="overlay_coap.conf;$CI_CONFIG_FRAGMENT;$DEBUG_LOGS_FRAGMENT;$MODEM_LOG_FRAGMENT;$VERBOSE_ALERT_FRAGMENT;$COAP_FOTA_BOOT_FRAGMENT" -DCONFIG_FW_INFO_FIRMWARE_VERSION=5 -DSB_CONFIG_SECURE_BOOT_APPCORE=y
-            west build -b nrf9160dk@1.1.0/nrf9160/ns --build-dir build-$VERSION/nrf9160dk-nrf_cloud_multi_service_coap_fota_modem_full nrf/samples/cellular/nrf_cloud_multi_service   -- -DEXTRA_CONF_FILE="overlay_full_modem_fota.conf;overlay_coap.conf;$CI_CONFIG_FRAGMENT;$DEBUG_LOGS_FRAGMENT;$MODEM_LOG_FRAGMENT;$VERBOSE_ALERT_FRAGMENT;$COAP_FOTA_MODEM_FULL_FRAGMENT"
-            west build -b nrf9160dk/nrf9160/ns       --build-dir build-$VERSION/nrf9160dk-nrf_cloud_multi_service_coap_min             nrf/samples/cellular/nrf_cloud_multi_service   -- -DEXTRA_CONF_FILE="overlay_min_coap.conf;$CI_CONFIG_FRAGMENT"
-            west build -b nrf9160dk/nrf9160/ns       --build-dir build-$VERSION/nrf9160dk-nrf_cloud_multi_service_coap_no_gnss         nrf/samples/cellular/nrf_cloud_multi_service   -- -DEXTRA_CONF_FILE="overlay_coap.conf;$CI_CONFIG_FRAGMENT;$DEBUG_LOGS_FRAGMENT;$MODEM_LOG_FRAGMENT;$VERBOSE_ALERT_FRAGMENT" -DCONFIG_LOCATION_METHOD_GNSS=n
-            west build -b nrf9160dk/nrf9160/ns       --build-dir build-$VERSION/nrf9160dk-nrf_cloud_multi_service_coap_pgps_only       nrf/samples/cellular/nrf_cloud_multi_service   -- -DEXTRA_CONF_FILE="overlay_coap.conf;$CI_CONFIG_FRAGMENT;$DEBUG_LOGS_FRAGMENT;$MODEM_LOG_FRAGMENT;$VERBOSE_ALERT_FRAGMENT;$MSS_PGPS_ONLY_FRAGMENT"
-            west build -b nrf9160dk/nrf9160/ns       --build-dir build-$VERSION/nrf9160dk-nrf_cloud_multi_service_coap_text_log        nrf/samples/cellular/nrf_cloud_multi_service   -- -DEXTRA_CONF_FILE="overlay_coap.conf;overlay_nrfcloud_logging.conf;$CI_CONFIG_FRAGMENT;$DEBUG_LOGS_FRAGMENT;$VERBOSE_ALERT_FRAGMENT"
+          if [[ " ${{ inputs.device }} " == "nrf9160dk" ]]; then
+            west build -b nrf9160dk/nrf9160/ns       --build-dir build-$VERSION/nrf9160dk-nrf_cloud_multi_service_coap_agnss_only      nrf/samples/cellular/nrf_cloud_multi_service   -- -DEXTRA_CONF_FILE="overlay_coap.conf;$COAP_SERVER_FRAGMENT;$DEBUG_LOGS_FRAGMENT;$MODEM_LOG_FRAGMENT;$VERBOSE_ALERT_FRAGMENT;$MSS_AGNSS_ONLY_FRAGMENT"
+            west build -b nrf9160dk/nrf9160/ns       --build-dir build-$VERSION/nrf9160dk-nrf_cloud_multi_service_coap_binary_log      nrf/samples/cellular/nrf_cloud_multi_service   -- -DEXTRA_CONF_FILE="overlay_coap.conf;overlay_nrfcloud_logging.conf;$COAP_SERVER_FRAGMENT;$DEBUG_LOGS_FRAGMENT;$VERBOSE_ALERT_FRAGMENT;$BINARY_LOGS_FRAGMENT"
+            west build -b nrf9160dk/nrf9160/ns       --build-dir build-$VERSION/nrf9160dk-nrf_cloud_multi_service_coap_fota_app_a      nrf/samples/cellular/nrf_cloud_multi_service   -- -DEXTRA_CONF_FILE="overlay_coap.conf;$COAP_SERVER_FRAGMENT;$DEBUG_LOGS_FRAGMENT;$MODEM_LOG_FRAGMENT;$VERBOSE_ALERT_FRAGMENT;$COAP_FOTA_APP_FRAGMENT"
+            west build -b nrf9160dk/nrf9160/ns       --build-dir build-$VERSION/nrf9160dk-nrf_cloud_multi_service_coap_fota_app_b      nrf/samples/cellular/nrf_cloud_multi_service   -- -DEXTRA_CONF_FILE="overlay_coap.conf;$COAP_SERVER_FRAGMENT;$DEBUG_LOGS_FRAGMENT;$MODEM_LOG_FRAGMENT;$VERBOSE_ALERT_FRAGMENT;$COAP_FOTA_APP_FRAGMENT" '-DCONFIG_APP_VERSION="1.0.0-FOTA-TEST"'
+            west build -b nrf9160dk/nrf9160/ns       --build-dir build-$VERSION/nrf9160dk-nrf_cloud_multi_service_coap_fota_boot_a     nrf/samples/cellular/nrf_cloud_multi_service   -- -DEXTRA_CONF_FILE="overlay_coap.conf;$COAP_SERVER_FRAGMENT;$DEBUG_LOGS_FRAGMENT;$MODEM_LOG_FRAGMENT;$VERBOSE_ALERT_FRAGMENT;$COAP_FOTA_BOOT_FRAGMENT" -DCONFIG_FW_INFO_FIRMWARE_VERSION=4 -DSB_CONFIG_SECURE_BOOT_APPCORE=y
+            west build -b nrf9160dk/nrf9160/ns       --build-dir build-$VERSION/nrf9160dk-nrf_cloud_multi_service_coap_fota_boot_b     nrf/samples/cellular/nrf_cloud_multi_service   -- -DEXTRA_CONF_FILE="overlay_coap.conf;$COAP_SERVER_FRAGMENT;$DEBUG_LOGS_FRAGMENT;$MODEM_LOG_FRAGMENT;$VERBOSE_ALERT_FRAGMENT;$COAP_FOTA_BOOT_FRAGMENT" -DCONFIG_FW_INFO_FIRMWARE_VERSION=5 -DSB_CONFIG_SECURE_BOOT_APPCORE=y
+            west build -b nrf9160dk@1.1.0/nrf9160/ns --build-dir build-$VERSION/nrf9160dk-nrf_cloud_multi_service_coap_fota_modem_full nrf/samples/cellular/nrf_cloud_multi_service   -- -DEXTRA_CONF_FILE="overlay_full_modem_fota.conf;overlay_coap.conf;$COAP_SERVER_FRAGMENT;$DEBUG_LOGS_FRAGMENT;$MODEM_LOG_FRAGMENT;$VERBOSE_ALERT_FRAGMENT;$COAP_FOTA_MODEM_FULL_FRAGMENT"
+            west build -b nrf9160dk/nrf9160/ns       --build-dir build-$VERSION/nrf9160dk-nrf_cloud_multi_service_coap_min             nrf/samples/cellular/nrf_cloud_multi_service   -- -DEXTRA_CONF_FILE="overlay_min_coap.conf;$COAP_SERVER_FRAGMENT"
+            west build -b nrf9160dk/nrf9160/ns       --build-dir build-$VERSION/nrf9160dk-nrf_cloud_multi_service_coap_no_gnss         nrf/samples/cellular/nrf_cloud_multi_service   -- -DEXTRA_CONF_FILE="overlay_coap.conf;$COAP_SERVER_FRAGMENT;$DEBUG_LOGS_FRAGMENT;$MODEM_LOG_FRAGMENT;$VERBOSE_ALERT_FRAGMENT" -DCONFIG_LOCATION_METHOD_GNSS=n
+            west build -b nrf9160dk/nrf9160/ns       --build-dir build-$VERSION/nrf9160dk-nrf_cloud_multi_service_coap_pgps_only       nrf/samples/cellular/nrf_cloud_multi_service   -- -DEXTRA_CONF_FILE="overlay_coap.conf;$COAP_SERVER_FRAGMENT;$DEBUG_LOGS_FRAGMENT;$MODEM_LOG_FRAGMENT;$VERBOSE_ALERT_FRAGMENT;$MSS_PGPS_ONLY_FRAGMENT"
+            west build -b nrf9160dk/nrf9160/ns       --build-dir build-$VERSION/nrf9160dk-nrf_cloud_multi_service_coap_text_log        nrf/samples/cellular/nrf_cloud_multi_service   -- -DEXTRA_CONF_FILE="overlay_coap.conf;overlay_nrfcloud_logging.conf;$COAP_SERVER_FRAGMENT;$DEBUG_LOGS_FRAGMENT;$VERBOSE_ALERT_FRAGMENT"
           fi
           # nRF9151-DK
-          if [[ " ${{ inputs.devices }} " == *" nrf9151dk "* ]]; then
-            west build -b nrf9151dk/nrf9151/ns       --build-dir build-$VERSION/nrf9151dk-nrf_cloud_multi_service_coap_onboard_coap    nrf/samples/cellular/nrf_cloud_multi_service   -- -DEXTRA_CONF_FILE="overlay-coap_nrf_provisioning.conf;overlay_coap.conf;$CI_CONFIG_FRAGMENT;$DEBUG_LOGS_FRAGMENT;$MODEM_LOG_FRAGMENT;$VERBOSE_ALERT_FRAGMENT;$COAP_PROVISIONING_FRAGMENT;$COAP_PROVISIONING_SERVER_FRAGMENT"
-            west build -b nrf9151dk/nrf9151/ns       --build-dir build-$VERSION/nrf9151dk-nrf_cloud_multi_service_coap_onboard_http    nrf/samples/cellular/nrf_cloud_multi_service   -- -DEXTRA_CONF_FILE="overlay-http_nrf_provisioning.conf;overlay_coap.conf;$CI_CONFIG_FRAGMENT;$DEBUG_LOGS_FRAGMENT;$MODEM_LOG_FRAGMENT;$VERBOSE_ALERT_FRAGMENT;$COAP_PROVISIONING_FRAGMENT;$HTTP_PROVISIONING_SERVER_FRAGMENT"
+          if [[ " ${{ inputs.device }} " == "nrf9151dk" ]]; then
+            west build -b nrf9151dk/nrf9151/ns       --build-dir build-$VERSION/nrf9151dk-nrf_cloud_multi_service_coap_onboard_coap    nrf/samples/cellular/nrf_cloud_multi_service   -- -DEXTRA_CONF_FILE="overlay-coap_nrf_provisioning.conf;overlay_coap.conf;$COAP_SERVER_FRAGMENT;$DEBUG_LOGS_FRAGMENT;$MODEM_LOG_FRAGMENT;$VERBOSE_ALERT_FRAGMENT;$COAP_PROVISIONING_FRAGMENT;$COAP_PROVISIONING_SERVER_FRAGMENT"
+            west build -b nrf9151dk/nrf9151/ns       --build-dir build-$VERSION/nrf9151dk-nrf_cloud_multi_service_coap_onboard_http    nrf/samples/cellular/nrf_cloud_multi_service   -- -DEXTRA_CONF_FILE="overlay-http_nrf_provisioning.conf;overlay_coap.conf;$COAP_SERVER_FRAGMENT;$DEBUG_LOGS_FRAGMENT;$MODEM_LOG_FRAGMENT;$VERBOSE_ALERT_FRAGMENT;$COAP_PROVISIONING_FRAGMENT;$HTTP_PROVISIONING_SERVER_FRAGMENT"
+            west build -b nrf9151dk/nrf9151/ns       --build-dir build-$VERSION/nrf9151dk-nrf_cloud_multi_service_coap_agnss_only      nrf/samples/cellular/nrf_cloud_multi_service   -- -DEXTRA_CONF_FILE="overlay_coap.conf;$COAP_SERVER_FRAGMENT;$DEBUG_LOGS_FRAGMENT;$MODEM_LOG_FRAGMENT;$VERBOSE_ALERT_FRAGMENT;$MSS_AGNSS_ONLY_FRAGMENT"
+            west build -b nrf9151dk/nrf9151/ns       --build-dir build-$VERSION/nrf9151dk-nrf_cloud_multi_service_coap_binary_log      nrf/samples/cellular/nrf_cloud_multi_service   -- -DEXTRA_CONF_FILE="overlay_coap.conf;overlay_nrfcloud_logging.conf;$COAP_SERVER_FRAGMENT;$DEBUG_LOGS_FRAGMENT;$VERBOSE_ALERT_FRAGMENT;$BINARY_LOGS_FRAGMENT"
+            west build -b nrf9151dk/nrf9151/ns       --build-dir build-$VERSION/nrf9151dk-nrf_cloud_multi_service_coap_fota_app_a      nrf/samples/cellular/nrf_cloud_multi_service   -- -DEXTRA_CONF_FILE="overlay_coap.conf;$COAP_SERVER_FRAGMENT;$DEBUG_LOGS_FRAGMENT;$MODEM_LOG_FRAGMENT;$VERBOSE_ALERT_FRAGMENT;$COAP_FOTA_APP_FRAGMENT"
+            west build -b nrf9151dk/nrf9151/ns       --build-dir build-$VERSION/nrf9151dk-nrf_cloud_multi_service_coap_fota_app_b      nrf/samples/cellular/nrf_cloud_multi_service   -- -DEXTRA_CONF_FILE="overlay_coap.conf;$COAP_SERVER_FRAGMENT;$DEBUG_LOGS_FRAGMENT;$MODEM_LOG_FRAGMENT;$VERBOSE_ALERT_FRAGMENT;$COAP_FOTA_APP_FRAGMENT" '-DCONFIG_APP_VERSION="1.0.0-FOTA-TEST"'
+            west build -b nrf9151dk/nrf9151/ns       --build-dir build-$VERSION/nrf9151dk-nrf_cloud_multi_service_coap_fota_boot_a     nrf/samples/cellular/nrf_cloud_multi_service   -- -DEXTRA_CONF_FILE="overlay_coap.conf;$COAP_SERVER_FRAGMENT;$DEBUG_LOGS_FRAGMENT;$MODEM_LOG_FRAGMENT;$VERBOSE_ALERT_FRAGMENT;$COAP_FOTA_BOOT_FRAGMENT" -DCONFIG_FW_INFO_FIRMWARE_VERSION=4 -DSB_CONFIG_SECURE_BOOT_APPCORE=y
+            west build -b nrf9151dk/nrf9151/ns       --build-dir build-$VERSION/nrf9151dk-nrf_cloud_multi_service_coap_fota_boot_b     nrf/samples/cellular/nrf_cloud_multi_service   -- -DEXTRA_CONF_FILE="overlay_coap.conf;$COAP_SERVER_FRAGMENT;$DEBUG_LOGS_FRAGMENT;$MODEM_LOG_FRAGMENT;$VERBOSE_ALERT_FRAGMENT;$COAP_FOTA_BOOT_FRAGMENT" -DCONFIG_FW_INFO_FIRMWARE_VERSION=5 -DSB_CONFIG_SECURE_BOOT_APPCORE=y
+            west build -b nrf9151dk/nrf9151/ns       --build-dir build-$VERSION/nrf9151dk-nrf_cloud_multi_service_coap_fota_modem_full nrf/samples/cellular/nrf_cloud_multi_service   -- -DEXTRA_CONF_FILE="overlay_full_modem_fota.conf;overlay_coap.conf;$COAP_SERVER_FRAGMENT;$DEBUG_LOGS_FRAGMENT;$MODEM_LOG_FRAGMENT;$VERBOSE_ALERT_FRAGMENT;$COAP_FOTA_MODEM_FULL_FRAGMENT"
+            west build -b nrf9151dk/nrf9151/ns       --build-dir build-$VERSION/nrf9151dk-nrf_cloud_multi_service_coap_min             nrf/samples/cellular/nrf_cloud_multi_service   -- -DEXTRA_CONF_FILE="overlay_min_coap.conf;$COAP_SERVER_FRAGMENT"
+            west build -b nrf9151dk/nrf9151/ns       --build-dir build-$VERSION/nrf9151dk-nrf_cloud_multi_service_coap_no_gnss         nrf/samples/cellular/nrf_cloud_multi_service   -- -DEXTRA_CONF_FILE="overlay_coap.conf;$COAP_SERVER_FRAGMENT;$DEBUG_LOGS_FRAGMENT;$MODEM_LOG_FRAGMENT;$VERBOSE_ALERT_FRAGMENT" -DCONFIG_LOCATION_METHOD_GNSS=n
+            west build -b nrf9151dk/nrf9151/ns       --build-dir build-$VERSION/nrf9151dk-nrf_cloud_multi_service_coap_pgps_only       nrf/samples/cellular/nrf_cloud_multi_service   -- -DEXTRA_CONF_FILE="overlay_coap.conf;$COAP_SERVER_FRAGMENT;$DEBUG_LOGS_FRAGMENT;$MODEM_LOG_FRAGMENT;$VERBOSE_ALERT_FRAGMENT;$MSS_PGPS_ONLY_FRAGMENT"
+            west build -b nrf9151dk/nrf9151/ns       --build-dir build-$VERSION/nrf9151dk-nrf_cloud_multi_service_coap_text_log        nrf/samples/cellular/nrf_cloud_multi_service   -- -DEXTRA_CONF_FILE="overlay_coap.conf;overlay_nrfcloud_logging.conf;$COAP_SERVER_FRAGMENT;$DEBUG_LOGS_FRAGMENT;$VERBOSE_ALERT_FRAGMENT"
           fi
 
       - name: Create Artifact bundle
