@@ -179,7 +179,7 @@ jobs:
           bash ../nrf-cloud-fw-ci/scripts/copy_artifacts.sh   nrf_cloud_multi_service         nrf9160dk/nrf_cloud_multi_service_coap_text_log         artifacts/nrf9160dk
           bash ../nrf-cloud-fw-ci/scripts/copy_artifacts.sh   nrf_cloud_multi_service         nrf9151dk/nrf_cloud_multi_service_coap_onboard_coap     artifacts/nrf9151dk
           bash ../nrf-cloud-fw-ci/scripts/copy_artifacts.sh   nrf_cloud_multi_service         nrf9151dk/nrf_cloud_multi_service_coap_onboard_http     artifacts/nrf9151dk
-          cp artifacts/nrf9160dk/nrf_cloud_multi_service_coap_fota_app_a artifacts/nrf9160dk/nrf_cloud_multi_service_coap_fota_modem_delta
+          cp -r artifacts/nrf9160dk/nrf_cloud_multi_service_coap_fota_app_a artifacts/nrf9160dk/nrf_cloud_multi_service_coap_fota_modem_delta
 
       - name: Upload Artifacts
         uses: actions/upload-artifact@v4
