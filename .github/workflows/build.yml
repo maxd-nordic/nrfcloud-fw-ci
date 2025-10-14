@@ -152,7 +152,7 @@ jobs:
         if: steps.cache-check.outputs.cache-hit == 'false'
         run: |
           # Thingy:91 X
-          if [[ " ${{ input.devices }} " == *" thingy91x "* ]]; then
+          if [[ " ${{ inputs.devices }} " == *" thingy91x "* ]]; then
             echo "Building for Thingy:91 X"
             west build -b thingy91x/nrf9151/ns --build-dir build-$VERSION/thingy91x-nrf_cloud_coap_device_message        nrf/samples/cellular/nrf_cloud_coap_device_message  -- -DEXTRA_CONF_FILE=$CI_CONFIG_FRAGMENT
             west build -b thingy91x/nrf9151/ns --build-dir build-$VERSION/thingy91x-nrf_cloud_coap_cell_location         nrf/samples/cellular/nrf_cloud_coap_cell_location   -- -DEXTRA_CONF_FILE=$CI_CONFIG_FRAGMENT
@@ -160,7 +160,7 @@ jobs:
             west build -b thingy91x/nrf9151/ns --build-dir build-$VERSION/thingy91x-nrf_cloud_coap_fota_fmfu             nrf/samples/cellular/nrf_cloud_coap_fota            -- -DEXTRA_CONF_FILE="full_modem_fota.conf;$CI_CONFIG_FRAGMENT"
           fi
           # nRF9160-DK
-            if [[ " ${{ input.devices }} " == *" nrf9160dk "* ]]; then
+            if [[ " ${{ inputs.devices }} " == *" nrf9160dk "* ]]; then
             west build -b nrf9160dk/nrf9160/ns       --build-dir build-$VERSION/nrf9160dk-nrf_cloud_multi_service_coap_agnss_only      nrf/samples/cellular/nrf_cloud_multi_service   -- -DEXTRA_CONF_FILE="overlay_coap.conf;$CI_CONFIG_FRAGMENT;$DEBUG_LOGS_FRAGMENT;$MODEM_LOG_FRAGMENT;$VERBOSE_ALERT_FRAGMENT;$MSS_AGNSS_ONLY_FRAGMENT"
             west build -b nrf9160dk/nrf9160/ns       --build-dir build-$VERSION/nrf9160dk-nrf_cloud_multi_service_coap_binary_log      nrf/samples/cellular/nrf_cloud_multi_service   -- -DEXTRA_CONF_FILE="overlay_coap.conf;overlay_nrfcloud_logging.conf;$CI_CONFIG_FRAGMENT;$DEBUG_LOGS_FRAGMENT;$VERBOSE_ALERT_FRAGMENT;$BINARY_LOGS_FRAGMENT"
             west build -b nrf9160dk/nrf9160/ns       --build-dir build-$VERSION/nrf9160dk-nrf_cloud_multi_service_coap_fota_app_a      nrf/samples/cellular/nrf_cloud_multi_service   -- -DEXTRA_CONF_FILE="overlay_coap.conf;$CI_CONFIG_FRAGMENT;$DEBUG_LOGS_FRAGMENT;$MODEM_LOG_FRAGMENT;$VERBOSE_ALERT_FRAGMENT;$COAP_FOTA_APP_FRAGMENT"
@@ -174,7 +174,7 @@ jobs:
             west build -b nrf9160dk/nrf9160/ns       --build-dir build-$VERSION/nrf9160dk-nrf_cloud_multi_service_coap_text_log        nrf/samples/cellular/nrf_cloud_multi_service   -- -DEXTRA_CONF_FILE="overlay_coap.conf;overlay_nrfcloud_logging.conf;$CI_CONFIG_FRAGMENT;$DEBUG_LOGS_FRAGMENT;$VERBOSE_ALERT_FRAGMENT"
           fi
           # nRF9151-DK
-          if [[ " ${{ input.devices }} " == *" nrf9151dk "* ]]; then
+          if [[ " ${{ inputs.devices }} " == *" nrf9151dk "* ]]; then
             west build -b nrf9151dk/nrf9151/ns       --build-dir build-$VERSION/nrf9151dk-nrf_cloud_multi_service_coap_onboard_coap    nrf/samples/cellular/nrf_cloud_multi_service   -- -DEXTRA_CONF_FILE="overlay-coap_nrf_provisioning.conf;overlay_coap.conf;$CI_CONFIG_FRAGMENT;$DEBUG_LOGS_FRAGMENT;$MODEM_LOG_FRAGMENT;$VERBOSE_ALERT_FRAGMENT;$COAP_PROVISIONING_FRAGMENT;$COAP_PROVISIONING_SERVER_FRAGMENT"
             west build -b nrf9151dk/nrf9151/ns       --build-dir build-$VERSION/nrf9151dk-nrf_cloud_multi_service_coap_onboard_http    nrf/samples/cellular/nrf_cloud_multi_service   -- -DEXTRA_CONF_FILE="overlay-http_nrf_provisioning.conf;overlay_coap.conf;$CI_CONFIG_FRAGMENT;$DEBUG_LOGS_FRAGMENT;$MODEM_LOG_FRAGMENT;$VERBOSE_ALERT_FRAGMENT;$COAP_PROVISIONING_FRAGMENT;$HTTP_PROVISIONING_SERVER_FRAGMENT"
           fi
