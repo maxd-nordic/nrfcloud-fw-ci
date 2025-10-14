@@ -159,27 +159,12 @@ jobs:
 
       - name: Create Artifact bundle
         if: steps.cache-check.outputs.cache-hit == 'false'
-        working-directory: build-${{ env.VERSION }}
         run: |
-          # script                                            sample name                     build dir                                               target dir
-          bash ../nrf-cloud-fw-ci/scripts/copy_artifacts.sh   nrf_cloud_coap_device_message   thingy91x/nrf_cloud_coap_device_message                 artifacts/thingy91x
-          bash ../nrf-cloud-fw-ci/scripts/copy_artifacts.sh   nrf_cloud_coap_cell_location    thingy91x/nrf_cloud_coap_cell_location                  artifacts/thingy91x
-          bash ../nrf-cloud-fw-ci/scripts/copy_artifacts.sh   nrf_cloud_coap_fota             thingy91x/nrf_cloud_coap_fota                           artifacts/thingy91x
-          bash ../nrf-cloud-fw-ci/scripts/copy_artifacts.sh   nrf_cloud_coap_fota             thingy91x/nrf_cloud_coap_fota_fmfu                      artifacts/thingy91x
-          bash ../nrf-cloud-fw-ci/scripts/copy_artifacts.sh   nrf_cloud_multi_service         nrf9160dk/nrf_cloud_multi_service_coap_agnss_only       artifacts/nrf9160dk
-          bash ../nrf-cloud-fw-ci/scripts/copy_artifacts.sh   nrf_cloud_multi_service         nrf9160dk/nrf_cloud_multi_service_coap_binary_log       artifacts/nrf9160dk
-          bash ../nrf-cloud-fw-ci/scripts/copy_artifacts.sh   nrf_cloud_multi_service         nrf9160dk/nrf_cloud_multi_service_coap_fota_app_a       artifacts/nrf9160dk
-          bash ../nrf-cloud-fw-ci/scripts/copy_artifacts.sh   nrf_cloud_multi_service         nrf9160dk/nrf_cloud_multi_service_coap_fota_app_b       artifacts/nrf9160dk
-          bash ../nrf-cloud-fw-ci/scripts/copy_artifacts.sh   nrf_cloud_multi_service         nrf9160dk/nrf_cloud_multi_service_coap_fota_boot_a      artifacts/nrf9160dk
-          bash ../nrf-cloud-fw-ci/scripts/copy_artifacts.sh   nrf_cloud_multi_service         nrf9160dk/nrf_cloud_multi_service_coap_fota_boot_b      artifacts/nrf9160dk
-          bash ../nrf-cloud-fw-ci/scripts/copy_artifacts.sh   nrf_cloud_multi_service         nrf9160dk/nrf_cloud_multi_service_coap_fota_modem_full  artifacts/nrf9160dk
-          bash ../nrf-cloud-fw-ci/scripts/copy_artifacts.sh   nrf_cloud_multi_service         nrf9160dk/nrf_cloud_multi_service_coap_min              artifacts/nrf9160dk
-          bash ../nrf-cloud-fw-ci/scripts/copy_artifacts.sh   nrf_cloud_multi_service         nrf9160dk/nrf_cloud_multi_service_coap_no_gnss          artifacts/nrf9160dk
-          bash ../nrf-cloud-fw-ci/scripts/copy_artifacts.sh   nrf_cloud_multi_service         nrf9160dk/nrf_cloud_multi_service_coap_pgps_only        artifacts/nrf9160dk
-          bash ../nrf-cloud-fw-ci/scripts/copy_artifacts.sh   nrf_cloud_multi_service         nrf9160dk/nrf_cloud_multi_service_coap_text_log         artifacts/nrf9160dk
-          bash ../nrf-cloud-fw-ci/scripts/copy_artifacts.sh   nrf_cloud_multi_service         nrf9151dk/nrf_cloud_multi_service_coap_onboard_coap     artifacts/nrf9151dk
-          bash ../nrf-cloud-fw-ci/scripts/copy_artifacts.sh   nrf_cloud_multi_service         nrf9151dk/nrf_cloud_multi_service_coap_onboard_http     artifacts/nrf9151dk
-          cp -r artifacts/nrf9160dk/nrf_cloud_multi_service_coap_fota_app_a artifacts/nrf9160dk/nrf_cloud_multi_service_coap_fota_modem_delta
+          for build_dir in build-${{ env.VERSION }}/*/*; do
+            if [ -d "$build_dir" ]; then
+              bash nrf-cloud-fw-ci/scripts/copy_artifacts.sh "$build_dir" "build-${{ env.VERSION }}/artifacts"
+            fi
+          done
 
       - name: Upload Artifacts
         uses: actions/upload-artifact@v4
