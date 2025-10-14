@@ -76,9 +76,7 @@ jobs:
         working-directory: nrf
         run: |
           NRFSDK_SHA=$(git rev-parse HEAD)
-          # create dot-separated list of devices
-          DEVICES=$(echo "${{ inputs.devices }}" | tr ' ' '.')
-          echo "VERSION=${{ env.BUILD_WORKFLOW_SHA }}-$NRFSDK_SHA-${{ inputs.stage }}-$DEVICES" >> $GITHUB_ENV
+          echo "VERSION=${{ env.BUILD_WORKFLOW_SHA }}-$NRFSDK_SHA-${{ inputs.stage }}-${{ inputs.device }}" >> $GITHUB_ENV
 
       - name: Check if build exists in cache
         id: cache-check
