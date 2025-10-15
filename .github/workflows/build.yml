@@ -138,17 +138,17 @@ jobs:
           echo "REST_SERVER_FRAGMENT=$FRAGMENT_DIR/stages_general/rest_${{ inputs.stage }}.conf" >> $GITHUB_ENV
           echo "COAP_PROVISIONING_SERVER_FRAGMENT=$FRAGMENT_DIR/stages_provisioning/coap_${{ inputs.stage }}.conf" >> $GITHUB_ENV
           echo "HTTP_PROVISIONING_SERVER_FRAGMENT=$FRAGMENT_DIR/stages_provisioning/http_${{ inputs.stage }}.conf" >> $GITHUB_ENV
-          echo "DEBUG_LOGS_FRAGMENT=$FRAGMENT_DIR/debug_logs.conf" >> $GITHUB_ENV
-          echo "MODEM_LOG_FRAGMENT=$FRAGMENT_DIR/modem_log.conf" >> $GITHUB_ENV
-          echo "VERBOSE_ALERT_FRAGMENT=$FRAGMENT_DIR/verbose_alert.conf" >> $GITHUB_ENV
-          echo "MSS_AGNSS_ONLY_FRAGMENT=$FRAGMENT_DIR/mss_agnss_only.conf" >> $GITHUB_ENV
-          echo "BINARY_LOGS_FRAGMENT=$FRAGMENT_DIR/binary_logs.conf" >> $GITHUB_ENV
-          echo "FOTA_APP_FRAGMENT=$FRAGMENT_DIR/fota_app.conf" >> $GITHUB_ENV
-          echo "FOTA_BOOT_FRAGMENT=$FRAGMENT_DIR/fota_boot.conf" >> $GITHUB_ENV
-          echo "FOTA_MODEM_FULL_FRAGMENT=$FRAGMENT_DIR/fota_modem_full.conf" >> $GITHUB_ENV
-          echo "MSS_PGPS_ONLY_FRAGMENT=$FRAGMENT_DIR/mss_pgps_only.conf" >> $GITHUB_ENV
-          echo "MSS_PGPS_EXT_FRAGMENT=$FRAGMENT_DIR/mss_pgps_ext.conf" >> $GITHUB_ENV
-          echo "PROVISIONING_FRAGMENT=$FRAGMENT_DIR/provisioning.conf" >> $GITHUB_ENV
+          echo "DEBUG_LOGS_FRAGMENT=$FRAGMENT_DIR/mss/debug_logs.conf" >> $GITHUB_ENV
+          echo "MODEM_LOG_FRAGMENT=$FRAGMENT_DIR/mss/modem_log.conf" >> $GITHUB_ENV
+          echo "VERBOSE_ALERT_FRAGMENT=$FRAGMENT_DIR/mss/verbose_alert.conf" >> $GITHUB_ENV
+          echo "MSS_AGNSS_ONLY_FRAGMENT=$FRAGMENT_DIR/mss/agnss_only.conf" >> $GITHUB_ENV
+          echo "BINARY_LOGS_FRAGMENT=$FRAGMENT_DIR/mss/binary_logs.conf" >> $GITHUB_ENV
+          echo "FOTA_APP_FRAGMENT=$FRAGMENT_DIR/mss/fota_app.conf" >> $GITHUB_ENV
+          echo "FOTA_BOOT_FRAGMENT=$FRAGMENT_DIR/mss/fota_boot.conf" >> $GITHUB_ENV
+          echo "FOTA_MODEM_FULL_FRAGMENT=$FRAGMENT_DIR/mss/fota_modem_full.conf" >> $GITHUB_ENV
+          echo "MSS_PGPS_ONLY_FRAGMENT=$FRAGMENT_DIR/mss/pgps_only.conf" >> $GITHUB_ENV
+          echo "MSS_PGPS_EXT_FRAGMENT=$FRAGMENT_DIR/mss/pgps_ext.conf" >> $GITHUB_ENV
+          echo "PROVISIONING_FRAGMENT=$FRAGMENT_DIR/mss/provisioning.conf" >> $GITHUB_ENV
 
       - name: Build CoAP samples
         if: steps.cache-check.outputs.cache-hit == 'false'
