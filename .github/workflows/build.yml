@@ -131,7 +131,7 @@ jobs:
         if: steps.cache-check.outputs.cache-hit == 'false'
         shell: bash
         run: |
-          FRAGMENT_DIR=$PWD/nrf-cloud-fw-ci/config_fragments/
+          FRAGMENT_DIR=$PWD/nrf-cloud-fw-ci/config_fragments
           echo "FRAGMENT_DIR=$FRAGMENT_DIR" >> $GITHUB_ENV
           echo "COAP_SERVER_FRAGMENT=$FRAGMENT_DIR/stages_general/coap_${{ inputs.stage }}.conf" >> $GITHUB_ENV
           echo "MQTT_SERVER_FRAGMENT=$FRAGMENT_DIR/stages_general/mqtt_${{ inputs.stage }}.conf" >> $GITHUB_ENV
@@ -219,9 +219,9 @@ jobs:
             west build -b nrf9151dk/nrf9151/ns       --build-dir build-$VERSION/nrf9151dk-nrf_cloud_multi_service_mqtt_onboard_coap    nrf/samples/cellular/nrf_cloud_multi_service   -- -DEXTRA_CONF_FILE="overlay-coap_nrf_provisioning.conf;$MQTT_SERVER_FRAGMENT;$DEBUG_LOGS_FRAGMENT;$MODEM_LOG_FRAGMENT;$VERBOSE_ALERT_FRAGMENT;$PROVISIONING_FRAGMENT;$COAP_PROVISIONING_SERVER_FRAGMENT"
             west build -b nrf9151dk/nrf9151/ns       --build-dir build-$VERSION/nrf9151dk-nrf_cloud_multi_service_mqtt_onboard_http    nrf/samples/cellular/nrf_cloud_multi_service   -- -DEXTRA_CONF_FILE="overlay-http_nrf_provisioning.conf;$MQTT_SERVER_FRAGMENT;$DEBUG_LOGS_FRAGMENT;$MODEM_LOG_FRAGMENT;$VERBOSE_ALERT_FRAGMENT;$PROVISIONING_FRAGMENT;$HTTP_PROVISIONING_SERVER_FRAGMENT"
             west build -b nrf9151dk/nrf9151/ns       --build-dir build-$VERSION/nrf9151dk-nrf_cloud_multi_service_mqtt_text_log        nrf/samples/cellular/nrf_cloud_multi_service   -- -DEXTRA_CONF_FILE="overlay_nrfcloud_logging.conf;$MQTT_SERVER_FRAGMENT;$DEBUG_LOGS_FRAGMENT;$VERBOSE_ALERT_FRAGMENT"
-            west build -b nrf9151dk/nrf9151/ns       --build-dir build-$VERSION/nrf9151dk-nrf_cloud_multi_service_mqtt_wifi_pos        nrf/samples/cellular/nrf_cloud_multi_service   -- -DEXTRA_CONF_FILE="overlay-nrf7002ek-wifi-scan-only.conf;$MQTT_SERVER_FRAGMENT;$VERBOSE_ALERT_FRAGMENT" -DSHIELD=nrf7002ek_nrf7000 -DSB_CONF_FILE=sysbuild_nrf700x-wifi-scan.conf
-            west build -b nrf9151dk/nrf9151/ns       --build-dir build-$VERSION/nrf9151dk-nrf_cloud_multi_service_mqtt_wifi_pos_app_fota_a        nrf/samples/cellular/nrf_cloud_multi_service   -- -DEXTRA_CONF_FILE="overlay-nrf7002ek-wifi-scan-only.conf;$MQTT_SERVER_FRAGMENT;$VERBOSE_ALERT_FRAGMENT;$FOTA_APP_FRAGMENT" -DSHIELD=nrf7002ek_nrf7000 -DSB_CONF_FILE=sysbuild_nrf700x-wifi-scan.conf
-            west build -b nrf9151dk/nrf9151/ns       --build-dir build-$VERSION/nrf9151dk-nrf_cloud_multi_service_mqtt_wifi_pos_app_fota_b        nrf/samples/cellular/nrf_cloud_multi_service   -- -DEXTRA_CONF_FILE="overlay-nrf7002ek-wifi-scan-only.conf;$MQTT_SERVER_FRAGMENT;$VERBOSE_ALERT_FRAGMENT;$FOTA_APP_FRAGMENT" -DSHIELD=nrf7002ek_nrf7000 -DSB_CONF_FILE=sysbuild_nrf700x-wifi-scan.conf '-DCONFIG_APP_VERSION="1.0.0-FOTA-TEST"'
+            west build -b nrf9151dk/nrf9151/ns       --build-dir build-$VERSION/nrf9151dk-nrf_cloud_multi_service_mqtt_wifi_pos        nrf/samples/cellular/nrf_cloud_multi_service   -- -DEXTRA_CONF_FILE="overlay-nrf7002ek-wifi-scan-only.conf;$MQTT_SERVER_FRAGMENT;$VERBOSE_ALERT_FRAGMENT" -Dnrf_cloud_multi_service_SHIELD=nrf7002ek_nrf7000 -DSB_CONF_FILE=sysbuild_nrf700x-wifi-scan.conf
+            west build -b nrf9151dk/nrf9151/ns       --build-dir build-$VERSION/nrf9151dk-nrf_cloud_multi_service_mqtt_wifi_pos_app_fota_a        nrf/samples/cellular/nrf_cloud_multi_service   -- -DEXTRA_CONF_FILE="overlay-nrf7002ek-wifi-scan-only.conf;$MQTT_SERVER_FRAGMENT;$VERBOSE_ALERT_FRAGMENT;$FOTA_APP_FRAGMENT" -Dnrf_cloud_multi_service_SHIELD=nrf7002ek_nrf7000 -DSB_CONF_FILE=sysbuild_nrf700x-wifi-scan.conf
+            west build -b nrf9151dk/nrf9151/ns       --build-dir build-$VERSION/nrf9151dk-nrf_cloud_multi_service_mqtt_wifi_pos_app_fota_b        nrf/samples/cellular/nrf_cloud_multi_service   -- -DEXTRA_CONF_FILE="overlay-nrf7002ek-wifi-scan-only.conf;$MQTT_SERVER_FRAGMENT;$VERBOSE_ALERT_FRAGMENT;$FOTA_APP_FRAGMENT" -Dnrf_cloud_multi_service_SHIELD=nrf7002ek_nrf7000 -DSB_CONF_FILE=sysbuild_nrf700x-wifi-scan.conf '-DCONFIG_APP_VERSION="1.0.0-FOTA-TEST"'
             # delta fota can use app_a
           fi
       - name: Create Artifact bundle
