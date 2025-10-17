@@ -224,6 +224,9 @@ jobs:
             west build -b nrf9151dk/nrf9151/ns       --build-dir build-$VERSION/nrf9151dk-nrf_cloud_multi_service_mqtt_wifi_pos_app_fota_b        nrf/samples/cellular/nrf_cloud_multi_service   -- -DEXTRA_CONF_FILE="overlay-nrf7002ek-wifi-scan-only.conf;$MQTT_SERVER_FRAGMENT;$VERBOSE_ALERT_FRAGMENT;$FOTA_APP_FRAGMENT" -Dnrf_cloud_multi_service_SHIELD=nrf7002ek_nrf7000 -DSB_CONF_FILE=sysbuild_nrf700x-wifi-scan.conf '-DCONFIG_APP_VERSION="1.0.0-FOTA-TEST"'
             # delta fota can use app_a
           fi
+          if [[ "${{ inputs.device }}" == "thingy91x" ]]; then
+            west build -b thingy91x/nrf9151/ns       --build-dir build-$VERSION/thingy91x-nrf_cloud_multi_service_mqtt_agnss_only      nrf/samples/cellular/nrf_cloud_multi_service   -- -DEXTRA_CONF_FILE="$MQTT_SERVER_FRAGMENT;$DEBUG_LOGS_FRAGMENT;$MODEM_LOG_FRAGMENT;$VERBOSE_ALERT_FRAGMENT;$MSS_AGNSS_ONLY_FRAGMENT" -Dnrf_cloud_multi_service_SNIPPET=nrf91-modem-trace-uart
+          fi
       - name: Create Artifact bundle
         if: steps.cache-check.outputs.cache-hit == 'false'
         run: |
