@@ -225,7 +225,7 @@ jobs:
             # delta fota can use app_a
           fi
           if [[ "${{ inputs.device }}" == "thingy91x" ]]; then
-            west build -b thingy91x/nrf9151/ns       --build-dir build-$VERSION/thingy91x-nrf_cloud_multi_service_mqtt_agnss_only      nrf/samples/cellular/nrf_cloud_multi_service   -- -DEXTRA_CONF_FILE="$MQTT_SERVER_FRAGMENT;$DEBUG_LOGS_FRAGMENT;$MODEM_LOG_FRAGMENT;$VERBOSE_ALERT_FRAGMENT;$MSS_AGNSS_ONLY_FRAGMENT" -Dnrf_cloud_multi_service_SNIPPET=nrf91-modem-trace-uart
+            west build -b thingy91x/nrf9151/ns       --build-dir build-$VERSION/thingy91x-nrf_cloud_multi_service_mqtt_agnss_only      nrf/samples/cellular/nrf_cloud_multi_service   -- -DEXTRA_CONF_FILE="$MQTT_SERVER_FRAGMENT;$DEBUG_LOGS_FRAGMENT;$MODEM_LOG_FRAGMENT;$VERBOSE_ALERT_FRAGMENT;$MSS_AGNSS_ONLY_FRAGMENT" -Dnrf_cloud_multi_service_SNIPPET=nrf91-modem-trace-uart -DCONFIG_NRF_MODEM_LIB_TRACE_LEVEL_IP_ONLY=y
           fi
       - name: Create Artifact bundle
         if: steps.cache-check.outputs.cache-hit == 'false'
