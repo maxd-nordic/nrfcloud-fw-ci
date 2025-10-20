@@ -238,7 +238,7 @@ jobs:
             west build -b thingy91x/nrf9151/ns --build-dir build-$VERSION/thingy91x-nrf_cloud_rest_device_message        nrf/samples/cellular/nrf_cloud_rest_device_message  -- -DEXTRA_CONF_FILE=$REST_SERVER_FRAGMENT -Dnrf_cloud_rest_device_message_SNIPPET=nrf91-modem-trace-uart
             west build -b thingy91x/nrf9151/ns --build-dir build-$VERSION/thingy91x-nrf_cloud_rest_cell_location         nrf/samples/cellular/nrf_cloud_rest_cell_location   -- -DEXTRA_CONF_FILE=$REST_SERVER_FRAGMENT -Dnrf_cloud_rest_cell_location_SNIPPET=nrf91-modem-trace-uart
             west build -b thingy91x/nrf9151/ns --build-dir build-$VERSION/thingy91x-nrf_cloud_rest_fota                  nrf/samples/cellular/nrf_cloud_rest_fota            -- -DEXTRA_CONF_FILE=$REST_SERVER_FRAGMENT -Dnrf_cloud_rest_fota_SNIPPET=nrf91-modem-trace-uart
-            west build -b thingy91x/nrf9151/ns --build-dir build-$VERSION/thingy91x-nrf_cloud_rest_fota_fmfu             nrf/samples/cellular/nrf_cloud_rest_fota            -- -DEXTRA_CONF_FILE="full_modem_fota.conf;$REST_SERVER_FRAGMENT" -Dnrf_cloud_rest_fota_SNIPPET=nrf91-modem-trace-uart
+            west build -b thingy91x/nrf9151/ns --build-dir build-$VERSION/thingy91x-nrf_cloud_rest_fota_fmfu             nrf/samples/cellular/nrf_cloud_rest_fota            -- -DEXTRA_CONF_FILE="overlay_full_modem_fota.conf;$REST_SERVER_FRAGMENT" -Dnrf_cloud_rest_fota_SNIPPET=nrf91-modem-trace-uart
           fi
 
       - name: Create Artifact bundle
