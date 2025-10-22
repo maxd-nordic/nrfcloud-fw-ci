@@ -1,0 +1,141 @@
+name: on-target tests
+
+on:
+  workflow_call:
+    inputs:
+      stage:
+        description: 'Stage to build'
+        required: true
+        default: 'prod'
+        type: string
+      ncs-commit:
+        description: 'NCS commit to build'
+        required: true
+        default: 'main'
+        type: string
+      device:
+        description: 'Device to build for'
+        required: true
+        default: 'thingy91x'
+        type: string
+  workflow_dispatch:
+    inputs:
+      stage:
+        description: 'Stage to build'
+        required: true
+        default: 'prod'
+        type: string
+      ncs-commit:
+        description: 'NCS commit to build'
+        required: true
+        default: 'main'
+        type: string
+      device:
+        description: 'Device to build for'
+        required: true
+        default: 'thingy91x'
+        type: string
+
+
+jobs:
+  target_test:
+    # Self-hosted runner is labeled according to the device it is linked with
+    runs-on: nrfcloudfw_${{ inputs.device }}
+    environment: ${{ inputs.device }}
+    name: Target Test - ${{ inputs.device }}
+    permissions:
+      actions: read
+      contents: write
+      packages: read
+    container:
+      image: ghcr.io/nrfconnect/asset-tracker-template:test-docker-v1.0.1
+      options: --privileged
+      volumes:
+        - /dev:/dev:rw
+        - /run/udev:/run/udev
+    steps:
+      - name: Display Runner Serial Number
+        # The serial number is set by a pre-job script in .env file on the local actions-runner directory
+        run: |
+          echo "Inside Container - Runner Serial Number: $RUNNER_SERIAL_NUMBER"
+          echo "Inside Container - Runner Serial Number: ${{ env.RUNNER_SERIAL_NUMBER }}"
+
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          path: nrf-cloud-fw-ci
+
+      - name: Download artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: firmware-artifacts-att
+          path: nrf-cloud-fw-ci/tests/on_target/artifacts
+          run-id: ${{ inputs.artifact_run_id }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Verify artifact path
+        working-directory: nrf-cloud-fw-ci
+        run: |
+          ls -l tests/on_target/artifacts
+
+      - name: Install dependencies
+        working-directory: nrf-cloud-fw-ci/tests/on_target
+        run: |
+          pip install -r requirements.txt --break-system-packages
+          nrfutil install trace
+
+      - name: Target Tests
+        working-directory: nrf-cloud-fw-ci/tests/on_target
+        shell: bash
+        env:
+          SEGGER: ${{ env.RUNNER_SERIAL_NUMBER }}
+          DUT_DEVICE_TYPE: ${{ vars.DUT_DEVICE_TYPE }}
+          UUID: ${{ env.UUID }}
+          NRFCLOUD_API_KEY: ${{ secrets.NRF_CLOUD_API_KEY }}
+          LOG_FILENAME: nrfcloud_fw_test_log
+          TEST_REPORT_NAME: Firwmare Test Report
+        run: |
+          mkdir -p results
+          PYTEST_PATH=tests/test_functional
+
+          if [[ "${{ inputs.stage }}" == "prod" ]]; then
+            export NRFCLOUD_API_KEY=${{ secrets.NRF_CLOUD_API_KEY_PROD }}
+          fi
+          if [[ "${{ inputs.stage }}" == "beta" ]]; then
+            export NRFCLOUD_API_KEY=${{ secrets.NRF_CLOUD_API_KEY_BETA }}
+          fi
+          if [[ "${{ inputs.stage }}" == "dev" ]]; then
+            export NRFCLOUD_API_KEY=${{ secrets.NRF_CLOUD_API_KEY_DEV }}
+          fi
+
+          pytest -v "${pytest_marker[@]}" \
+            --junit-xml=results/test-results.xml \
+            --html=results/test-results.html --self-contained-html \
+            ${PYTEST_PATH}
+
+      - name: Results
+        if: always()
+        uses: pmeier/pytest-results-action@v0.7.1
+        with:
+          path: nrf-cloud-fw-ci/tests/on_target/results/*.xml
+          summary: true
+          fail-on-empty: true
+          title: FW Test Results - ${{ inputs.device }}
+
+      - name: Create Report Artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        id: artifact-report
+        with:
+          name: test-report-${{ inputs.device }}
+          path: |
+            nrf-cloud-fw-ci/tests/on_target/results/*.html
+
+      - name: Push log files to artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        id: artifact-upload-test-logs
+        with:
+          name: test-logs-${{ inputs.device }}
+          path: |
+            nrf-cloud-fw-ci/tests/on_target/outcomes/logs/*.txt
