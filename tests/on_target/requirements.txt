@@ -9,3 +9,5 @@ memfault-cli
 ppk2-api
 pandas
 plotly
+pyocd
+nrfcloud-utils
