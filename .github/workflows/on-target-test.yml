@@ -36,7 +36,6 @@ on:
         default: 'thingy91x'
         type: string
 
-
 jobs:
   target_test:
     # Self-hosted runner is labeled according to the device it is linked with
@@ -85,9 +84,11 @@ jobs:
           nrfutil install trace
 
       - name: Try out some device connection things
+        if: ${{ input.device }} == 'thingy91x'
         run: |
           pyocd list
-          pyocd reset -v -W -u ${{ env.RUNNER_SERIAL_NUMBER }}
+          python3 scripts/nrf91_flasher.py -u ${{ env.RUNNER_SERIAL_NUMBER }} --program provision_device/t91x-nrf91-bl.hex --modem provision_device/mfw_nrf91x1_2.0.1.zip
+          python3 scripts/nrf91_flasher.py -u ${{ env.RUNNER_SERIAL_NUMBER }} --program provision_device/t91x-atclient-apponly.hex
           ls "/dev/serial/by-id/usb-Nordic_Semiconductor_Thingy:91_X_UART_${{ env.RUNNER_SERIAL_NUMBER }}-if01"
           nrfcredstore $(realpath "/dev/serial/by-id/usb-Nordic_Semiconductor_Thingy:91_X_UART_${{ env.RUNNER_SERIAL_NUMBER }}-if01") list
 
