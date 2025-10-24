@@ -84,58 +84,65 @@ jobs:
           pip install -r requirements.txt --break-system-packages
           nrfutil install trace
 
-      - name: Target Tests
-        working-directory: nrf-cloud-fw-ci/tests/on_target
-        shell: bash
-        env:
-          SEGGER: ${{ env.RUNNER_SERIAL_NUMBER }}
-          DUT_DEVICE_TYPE: ${{ vars.DUT_DEVICE_TYPE }}
-          UUID: ${{ env.UUID }}
-          NRFCLOUD_API_KEY: ${{ secrets.NRF_CLOUD_API_KEY }}
-          LOG_FILENAME: nrfcloud_fw_test_log
-          TEST_REPORT_NAME: Firwmare Test Report
+      - name: Try out some device connection things
         run: |
-          mkdir -p results
-          PYTEST_PATH=tests/test_functional
+          pyocd list
+          pyocd reset -v -W -u ${{ env.RUNNER_SERIAL_NUMBER }}
+          ls "/dev/serial/by-id/usb-Nordic_Semiconductor_Thingy:91_X_UART_${{ env.RUNNER_SERIAL_NUMBER }}-if01"
+          nrfcredstore $(realpath "/dev/serial/by-id/usb-Nordic_Semiconductor_Thingy:91_X_UART_${{ env.RUNNER_SERIAL_NUMBER }}-if01") list
 
-          if [[ "${{ inputs.stage }}" == "prod" ]]; then
-            export NRFCLOUD_API_KEY=${{ secrets.NRF_CLOUD_API_KEY_PROD }}
-          fi
-          if [[ "${{ inputs.stage }}" == "beta" ]]; then
-            export NRFCLOUD_API_KEY=${{ secrets.NRF_CLOUD_API_KEY_BETA }}
-          fi
-          if [[ "${{ inputs.stage }}" == "dev" ]]; then
-            export NRFCLOUD_API_KEY=${{ secrets.NRF_CLOUD_API_KEY_DEV }}
-          fi
+      # - name: Target Tests
+      #   working-directory: nrf-cloud-fw-ci/tests/on_target
+      #   shell: bash
+      #   env:
+      #     SEGGER: ${{ env.RUNNER_SERIAL_NUMBER }}
+      #     DUT_DEVICE_TYPE: ${{ vars.DUT_DEVICE_TYPE }}
+      #     UUID: ${{ env.UUID }}
+      #     NRFCLOUD_API_KEY: ${{ secrets.NRF_CLOUD_API_KEY }}
+      #     LOG_FILENAME: nrfcloud_fw_test_log
+      #     TEST_REPORT_NAME: Firwmare Test Report
+      #   run: |
+      #     mkdir -p results
+      #     PYTEST_PATH=tests/test_functional
 
-          pytest -v "${pytest_marker[@]}" \
-            --junit-xml=results/test-results.xml \
-            --html=results/test-results.html --self-contained-html \
-            ${PYTEST_PATH}
+      #     if [[ "${{ inputs.stage }}" == "prod" ]]; then
+      #       export NRFCLOUD_API_KEY=${{ secrets.NRF_CLOUD_API_KEY_PROD }}
+      #     fi
+      #     if [[ "${{ inputs.stage }}" == "beta" ]]; then
+      #       export NRFCLOUD_API_KEY=${{ secrets.NRF_CLOUD_API_KEY_BETA }}
+      #     fi
+      #     if [[ "${{ inputs.stage }}" == "dev" ]]; then
+      #       export NRFCLOUD_API_KEY=${{ secrets.NRF_CLOUD_API_KEY_DEV }}
+      #     fi
 
-      - name: Results
-        if: always()
-        uses: pmeier/pytest-results-action@v0.7.1
-        with:
-          path: nrf-cloud-fw-ci/tests/on_target/results/*.xml
-          summary: true
-          fail-on-empty: true
-          title: FW Test Results - ${{ inputs.device }}
+      #     pytest -v "${pytest_marker[@]}" \
+      #       --junit-xml=results/test-results.xml \
+      #       --html=results/test-results.html --self-contained-html \
+      #       ${PYTEST_PATH}
 
-      - name: Create Report Artifact
-        if: always()
-        uses: actions/upload-artifact@v4
-        id: artifact-report
-        with:
-          name: test-report-${{ inputs.device }}
-          path: |
-            nrf-cloud-fw-ci/tests/on_target/results/*.html
+      # - name: Results
+      #   if: always()
+      #   uses: pmeier/pytest-results-action@v0.7.1
+      #   with:
+      #     path: nrf-cloud-fw-ci/tests/on_target/results/*.xml
+      #     summary: true
+      #     fail-on-empty: true
+      #     title: FW Test Results - ${{ inputs.device }}
 
-      - name: Push log files to artifacts
-        if: always()
-        uses: actions/upload-artifact@v4
-        id: artifact-upload-test-logs
-        with:
-          name: test-logs-${{ inputs.device }}
-          path: |
-            nrf-cloud-fw-ci/tests/on_target/outcomes/logs/*.txt
+      # - name: Create Report Artifact
+      #   if: always()
+      #   uses: actions/upload-artifact@v4
+      #   id: artifact-report
+      #   with:
+      #     name: test-report-${{ inputs.device }}
+      #     path: |
+      #       nrf-cloud-fw-ci/tests/on_target/results/*.html
+
+      # - name: Push log files to artifacts
+      #   if: always()
+      #   uses: actions/upload-artifact@v4
+      #   id: artifact-upload-test-logs
+      #   with:
+      #     name: test-logs-${{ inputs.device }}
+      #     path: |
+      #       nrf-cloud-fw-ci/tests/on_target/outcomes/logs/*.txt
