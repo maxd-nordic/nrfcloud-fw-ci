@@ -73,10 +73,10 @@ jobs:
       #     run-id: ${{ inputs.artifact_run_id }}
       #     github-token: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Verify artifact path
-        working-directory: nrf-cloud-fw-ci
-        run: |
-          ls -l tests/on_target/artifacts
+      # - name: Verify artifact path
+      #   working-directory: nrf-cloud-fw-ci
+      #   run: |
+      #     ls -l tests/on_target/artifacts
 
       - name: Install dependencies
         working-directory: nrf-cloud-fw-ci/tests/on_target
