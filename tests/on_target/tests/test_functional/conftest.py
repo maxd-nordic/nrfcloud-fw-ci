@@ -18,6 +18,7 @@ UART_ID = os.getenv('UART_ID', SEGGER)
 DEVICE_UUID = os.getenv('UUID')
 NRFCLOUD_API_KEY = os.getenv('NRFCLOUD_API_KEY')
 DUT_DEVICE_TYPE = os.getenv('DUT_DEVICE_TYPE')
+ARTIFACT_PATH = os.getenv('ARTIFACT_PATH')
 
 def get_uarts():
     base_path = "/dev/serial/by-id"
@@ -115,89 +116,8 @@ def dut_traces(dut_board):
     uart_trace.stop()
 
 @pytest.fixture(scope="session")
-def hex_file():
+def coap_device_message_hex_file():
     # Search for the firmware hex file in the artifacts folder
-    artifacts_dir = "artifacts/"
-    hex_pattern = f"asset-tracker-template-{r"[0-9a-z\.]+"}-{DUT_DEVICE_TYPE}-nrf91.hex"
+    hex_pattern = f"thingy91x-nrf_cloud_coap_device_message/zephyr.signed.hex"
 
-    for file in os.listdir(artifacts_dir):
-        if re.match(hex_pattern, file):
-            return os.path.join(artifacts_dir, file)
-
-    pytest.fail("No matching firmware .hex file found in the artifacts directory")
-
-@pytest.fixture(scope="session")
-def debug_hex_file():
-    # Skip if not thingy91x since debug build is only available for thingy91x
-    if DUT_DEVICE_TYPE != 'thingy91x':
-        pytest.skip("Debug build is only available for thingy91x")
-
-    # Search for the debug firmware hex file in the artifacts folder
-    artifacts_dir = "artifacts/"
-    hex_pattern = f"asset-tracker-template-{r'[0-9a-z\.]+'}-debug-{DUT_DEVICE_TYPE}-nrf91.hex"
-
-    for file in os.listdir(artifacts_dir):
-        if re.match(hex_pattern, file):
-            return os.path.join(artifacts_dir, file)
-
-    pytest.fail("No matching debug firmware .hex file found in the artifacts directory")
-
-@pytest.fixture(scope="session")
-def bin_file():
-    # Search for the firmware bin file in the artifacts folder
-    artifacts_dir = "artifacts"
-    hex_pattern = f"asset-tracker-template-{r"[0-9a-z\.]+"}-{DUT_DEVICE_TYPE}-nrf91-update-signed.hex"
-
-    for file in os.listdir(artifacts_dir):
-        if re.match(hex_pattern, file):
-            return os.path.join(artifacts_dir, file)
-
-    pytest.fail("No matching firmware .bin file found in the artifacts directory")
-
-@pytest.fixture(scope="session")
-def hex_file_patched():
-    # Skip if not thingy91x since patched build is only available for thingy91x
-    if DUT_DEVICE_TYPE != 'thingy91x':
-        pytest.skip("Patched build is only available for thingy91x")
-
-    # Search for the firmware hex file in the artifacts folder
-    artifacts_dir = "artifacts/"
-    hex_pattern = f"asset-tracker-template-{r"[0-9a-z\.]+"}-patched-{DUT_DEVICE_TYPE}-nrf91.hex"
-
-    for file in os.listdir(artifacts_dir):
-        if re.match(hex_pattern, file):
-            return os.path.join(artifacts_dir, file)
-
-    pytest.fail("No matching firmware .hex file found in the artifacts directory")
-
-@pytest.fixture(scope="session")
-def hex_file_mqtt():
-    # Skip if not thingy91x since MQTT build is only available for thingy91x
-    if DUT_DEVICE_TYPE != 'thingy91x':
-        pytest.skip("mqtt build is only available for thingy91x")
-
-    # Search for the firmware hex file in the artifacts folder
-    artifacts_dir = "artifacts/"
-    hex_pattern = f"asset-tracker-template-{r"[0-9a-z\.]+"}-mqtt-{DUT_DEVICE_TYPE}-nrf91.hex"
-
-    for file in os.listdir(artifacts_dir):
-        if re.match(hex_pattern, file):
-            return os.path.join(artifacts_dir, file)
-
-    pytest.fail("No matching firmware .hex file found in the artifacts directory")
-
-@pytest.fixture(scope="session")
-def hex_file_ext_gnss():
-    # Skip if not nrf9151dk since external GNSS build is only available for nrf9151dk
-    if DUT_DEVICE_TYPE != 'nrf9151dk':
-        pytest.skip("External GNSS build is only available for nrf9151dk")
-
-    # Search for the firmware hex file in the artifacts folder
-    artifacts_dir = "artifacts/"
-    hex_pattern = f"asset-tracker-template-{r'[0-9a-z\.]+'}-ext-gnss-{DUT_DEVICE_TYPE}-nrf91.hex"
-
-    for file in os.listdir(artifacts_dir):
-        if re.match(hex_pattern, file):
-            return os.path.join(artifacts_dir, file)
-
-    pytest.fail("No matching external GNSS firmware .hex file found in the artifacts directory")
+    return os.path.join(ARTIFACT_PATH, file)
