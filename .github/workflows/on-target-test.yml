@@ -96,9 +96,11 @@ jobs:
 
       - name: Verify artifact path
         working-directory: nrf-cloud-fw-ci
+        shell: bash
         run: |
-          ls -l tests/on_target/artifacts/build-*-${{ inputs.device }}
-          echo ARTIFACT_PATH=tests/on_target/artifacts/build-*-${{ inputs.device }} >> $GITHUB_ENV
+          cd tests/on_target/artifacts/build-*-${{ inputs.device }}
+          ls -l
+          echo ARTIFACT_PATH=$PWD >> $GITHUB_ENV
 
       - name: Install dependencies
         working-directory: nrf-cloud-fw-ci/tests/on_target
