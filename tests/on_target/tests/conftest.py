@@ -59,7 +59,6 @@ def dut_board():
 
     uart_log = uart.whole_log
     uart.stop()
-    recover_device()
 
     scan_log_for_assertions(uart_log)
 

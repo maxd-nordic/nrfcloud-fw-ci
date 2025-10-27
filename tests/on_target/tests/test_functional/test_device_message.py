@@ -8,7 +8,7 @@ from utils.logger import get_logger
 
 logger = get_logger()
 
-def test_device_message(dut_board, coap_device_message_hex_file):
+def test_device_message(dut_cloud, coap_device_message_hex_file):
     '''
     Test that verifies that device can connect to nRF Cloud and send device messages.
     '''
