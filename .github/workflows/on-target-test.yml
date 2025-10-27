@@ -61,6 +61,8 @@ jobs:
       volumes:
         - /dev:/dev:rw
         - /run/udev:/run/udev
+    with:
+      artifact_run_id: ${{ build.outputs.run_id }}
     steps:
       - name: Display Runner Serial Number
         # The serial number is set by a pre-job script in .env file on the local actions-runner directory
@@ -77,7 +79,7 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           path: nrf-cloud-fw-ci/tests/on_target/artifacts
-          run-id: ${{ build.outputs.run_id }}
+          run-id: ${{ inputs.artifact_run_id }}
           github-token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Verify artifact path
