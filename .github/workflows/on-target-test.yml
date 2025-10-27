@@ -137,7 +137,7 @@ jobs:
           SEGGER: ${{ env.RUNNER_SERIAL_NUMBER }}
           DUT_DEVICE_TYPE: ${{ vars.DUT_DEVICE_TYPE }}
           UUID: ${{ env.UUID }}
-          NRFCLOUD_API_KEY: ${{ secrets.NRF_CLOUD_API_KEY }}
+          NRFCLOUD_API_KEY: ${{ env.NRFCLOUD_API_KEY }}
           LOG_FILENAME: nrfcloud_fw_test_log
           TEST_REPORT_NAME: Firmware Test Report
           ARTIFACT_PATH: ${{ env.ARTIFACT_PATH }}
