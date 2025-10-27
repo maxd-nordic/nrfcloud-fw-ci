@@ -52,9 +52,6 @@ jobs:
     outputs:
       run_id: ${{ github.run_id }}
       version: ${{ env.VERSION }}
-    permissions:
-      contents: write
-      pull-requests: write
     steps:
       - name: Checkout CI
         uses: actions/checkout@v4
