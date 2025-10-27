@@ -38,7 +38,6 @@ on:
 
 jobs:
   build:
-    runs-on: build_self_hosted
     uses: ./.github/workflows/build.yml
     secrets: inherit
     with:
