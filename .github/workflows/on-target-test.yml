@@ -50,7 +50,6 @@ jobs:
     runs-on: nrfcloudfw_${{ inputs.device }}
     environment: ${{ inputs.device }}
     name: Target Test - ${{ inputs.device }}
-    secrets: inherit
     needs: build
     permissions:
       actions: read
