@@ -1,4 +1,4 @@
-name: on-target tests
+name: On-Target Tests
 
 on:
   workflow_call:
@@ -37,11 +37,22 @@ on:
         type: string
 
 jobs:
+  build:
+    runs-on: build_self_hosted
+    uses: ./.github/workflows/build.yml
+    secrets: inherit
+    with:
+      stage: ${{ inputs.stage }}
+      ncs-commit: ${{ inputs.ncs-commit }}
+      device: ${{ inputs.device }}
+
   target_test:
     # Self-hosted runner is labeled according to the device it is linked with
     runs-on: nrfcloudfw_${{ inputs.device }}
     environment: ${{ inputs.device }}
     name: Target Test - ${{ inputs.device }}
+    secrets: inherit
+    needs: build
     permissions:
       actions: read
       contents: write
@@ -64,18 +75,18 @@ jobs:
         with:
           path: nrf-cloud-fw-ci
 
-      # - name: Download artifacts
-      #   uses: actions/download-artifact@v4
-      #   with:
-      #     name: firmware-artifacts-att
-      #     path: nrf-cloud-fw-ci/tests/on_target/artifacts
-      #     run-id: ${{ inputs.artifact_run_id }}
-      #     github-token: ${{ secrets.GITHUB_TOKEN }}
+      - name: Download artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: firmware-artifacts-att
+          path: nrf-cloud-fw-ci/tests/on_target/artifacts
+          run-id: ${{ inputs.artifact_run_id }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
 
-      # - name: Verify artifact path
-      #   working-directory: nrf-cloud-fw-ci
-      #   run: |
-      #     ls -l tests/on_target/artifacts
+      - name: Verify artifact path
+        working-directory: nrf-cloud-fw-ci
+        run: |
+          ls -l tests/on_target/artifacts
 
       - name: Install dependencies
         working-directory: nrf-cloud-fw-ci/tests/on_target
@@ -83,7 +94,20 @@ jobs:
           pip install -r requirements.txt --break-system-packages
           nrfutil install trace
 
-      - name: Try out some device connection things
+      - name: Select API KEY by stage
+        id: select_api_key
+        run: |
+          if [[ "${{ inputs.stage }}" == "prod" ]]; then
+            echo "NRFCLOUD_API_KEY=${{ secrets.API_KEY_PROD }}" >> $GITHUB_ENV
+          fi
+          if [[ "${{ inputs.stage }}" == "beta" ]]; then
+            echo "NRFCLOUD_API_KEY=${{ secrets.API_KEY_BETA }}" >> $GITHUB_ENV
+          fi
+          if [[ "${{ inputs.stage }}" == "dev" ]]; then
+            echo "NRFCLOUD_API_KEY=${{ secrets.API_KEY_DEV }}" >> $GITHUB_ENV
+          fi
+
+      - name: Ensure working device
         if: ${{ inputs.device }} == 'thingy91x'
         working-directory: nrf-cloud-fw-ci
         run: |
