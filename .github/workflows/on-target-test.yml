@@ -18,6 +18,11 @@ on:
         required: true
         default: 'thingy91x'
         type: string
+      recover_device:
+        description: 'Recover device before testing'
+        required: true
+        default: false
+        type: boolean
   workflow_dispatch:
     inputs:
       stage:
@@ -35,6 +40,11 @@ on:
         required: true
         default: 'thingy91x'
         type: string
+      recover_device:
+        description: 'Recover device before testing'
+        required: true
+        default: false
+        type: boolean
 
 jobs:
   build:
@@ -111,7 +121,7 @@ jobs:
           fi
 
       - name: Ensure working device
-        if: ${{ inputs.device }} == 'thingy91x'
+        if: ${{ inputs.device }} == 'thingy91x' && ${{ inputs.recover_device }} == true
         working-directory: nrf-cloud-fw-ci
         run: |
           pyocd list

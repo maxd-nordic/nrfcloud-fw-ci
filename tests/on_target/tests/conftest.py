@@ -117,7 +117,4 @@ def dut_traces(dut_board):
 
 @pytest.fixture(scope="session")
 def coap_device_message_hex_file():
-    # Search for the firmware hex file in the artifacts folder
-    hex_pattern = f"thingy91x-nrf_cloud_coap_device_message/zephyr.signed.hex"
-
-    return os.path.join(ARTIFACT_PATH, file)
+    return os.path.join(ARTIFACT_PATH, "thingy91x-nrf_cloud_coap_device_message/zephyr.signed.hex")
