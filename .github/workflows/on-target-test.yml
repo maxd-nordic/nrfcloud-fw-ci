@@ -123,7 +123,7 @@ jobs:
           fi
 
       - name: Ensure working device
-        if: (${{ inputs.device }} == 'thingy91x') && (${{ inputs.recover_device }} == true)
+        if: inputs.device == 'thingy91x' && inputs.recover_device == true
         working-directory: nrf-cloud-fw-ci
         run: |
           python3 tests/on_target/utils/nrf91_flasher.py -e -u ${{ env.RUNNER_SERIAL_NUMBER }} --program provision_device/t91x-nrf91-bl.hex --modem provision_device/mfw_nrf91x1_2.0.1.zip
