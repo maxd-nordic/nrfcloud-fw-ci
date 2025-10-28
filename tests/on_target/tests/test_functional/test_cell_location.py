@@ -28,3 +28,14 @@ def test_cell_location(dut_cloud, coap_cell_location_hex_file):
         ],
         timeout=CLOUD_TIMEOUT
     )
+
+    # Wait for message to be reported to cloud
+    start = time.time()
+    while time.time() - start < CLOUD_TIMEOUT:
+        time.sleep(5)
+        locations = dut_cloud.cloud.get_location_history(dut_cloud.device_id, max_records=20, max_age_hrs=0.25)
+        logger.debug(f"Found locations: {locations}")
+        if len(locations) > 0:
+            break
+    else:
+        raise RuntimeError("No new locations observed")

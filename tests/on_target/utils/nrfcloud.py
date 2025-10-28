@@ -136,11 +136,12 @@ class NRFCloud():
         """
         return self.get_devices(path=f"/{device_id}", params=params)
 
-    def get_messages(self, device: str=None, appname: str="donald", max_records: int=50, max_age_hrs: int=24) -> list:
+    def get_messages(self, device: str=None, appname: str=None, max_records: int=50, max_age_hrs: int=24) -> list:
         """
-        Get messages sent from asset_tracker to nrfcloud.com
+        Get device messages.
 
-        :param device_id: Limit result to messages from particular device
+        :param device: Limit result to messages from particular device
+        :param appname: Filter by APPID
         :param max_records: Limit number of messages to fetch
         :param max_age_hrs: Limit fetching messages by timestamp
         :return: List of (timestamp, message)
@@ -165,6 +166,32 @@ class NRFCloud():
 
         return [(timestamp(x), x['message'])
             for x in messages['items']]
+
+    def get_location_history(self, device: str=None, max_records: int=50, max_age_hrs: int=24) -> list:
+        """
+        Get previously resolved locations, e.g. cell locations.
+        :param device: Limit result to messages from particular device
+        :param max_records: Limit number of messages to fetch
+        :param max_age_hrs: Limit fetching messages by timestamp
+        :return: List of location objects
+        """
+
+        end = datetime.now(timezone.utc).strftime(self.time_fmt)
+        start = (datetime.now(timezone.utc) - timedelta(
+            hours=max_age_hrs)).strftime(self.time_fmt)
+        params = {
+            'start': start,
+            'end': end,
+            'pageSort': 'desc',
+            'pageLimit': max_records
+        }
+
+        if device:
+            params['deviceId'] = device
+
+        locations = self._get(path="/location/history", params=params)
+
+        return locations['items']
 
     def check_message_age(self, message: dict, hours: int=0, minutes: int=0, seconds: int=0) -> bool:
         """
