@@ -115,12 +115,15 @@ jobs:
         run: |
           if [[ "${{ inputs.stage }}" == "prod" ]]; then
             echo "NRFCLOUD_API_KEY=${{ secrets.API_KEY_PROD }}" >> $GITHUB_ENV
+            echo "NRFCLOUD_URL=nrfcloud.com" >> $GITHUB_ENV
           fi
           if [[ "${{ inputs.stage }}" == "beta" ]]; then
             echo "NRFCLOUD_API_KEY=${{ secrets.API_KEY_BETA }}" >> $GITHUB_ENV
+            echo "NRFCLOUD_URL=beta.nrfcloud.com" >> $GITHUB_ENV
           fi
           if [[ "${{ inputs.stage }}" == "dev" ]]; then
             echo "NRFCLOUD_API_KEY=${{ secrets.API_KEY_DEV }}" >> $GITHUB_ENV
+            echo "NRFCLOUD_URL=dev.nrfcloud.com" >> $GITHUB_ENV
           fi
 
       - name: Recover device
@@ -142,6 +145,7 @@ jobs:
           LOG_FILENAME: nrfcloud_fw_test_log
           TEST_REPORT_NAME: Firmware Test Report
           ARTIFACT_PATH: ${{ env.ARTIFACT_PATH }}
+          BASEURL: ${{ env.NRFCLOUD_URL }}
         run: |
           rm -rf results outcomes || true
           mkdir -p results

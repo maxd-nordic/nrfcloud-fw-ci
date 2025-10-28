@@ -3,6 +3,7 @@
 # SPDX-License-Identifier: LicenseRef-Nordic-5-Clause
 ##########################################################################################
 
+import os
 import zipfile
 import io
 import re
@@ -26,8 +27,10 @@ class FWType(Enum):
 class NRFCloudFOTAError(Exception):
     pass
 
+BASEURL = os.getenv(BASEURL, "nrfcloud.com")
+
 class NRFCloud():
-    def __init__(self, api_key: str, url: str="https://api.nrfcloud.com/v1", timeout: int=10) -> None:
+    def __init__(self, api_key: str, url: str=f"https://api.{BASEURL}/v1", timeout: int=10) -> None:
         """ Initalizes the class """
         self.url = url
         # Time format used by nrfcloud.com
@@ -80,7 +83,7 @@ class NRFCloud():
 
         # Use the provisioning API endpoint for unclaiming
         original_url = self.url
-        self.url = "https://api.provisioning.nrfcloud.com/v1"
+        self.url = f"https://api.provisioning.{BASEURL}/v1"
         try:
             self._post(path=f"/claimed-devices", data=data)
         finally:
@@ -95,7 +98,7 @@ class NRFCloud():
         """
         # Use the provisioning API endpoint for unclaiming
         original_url = self.url
-        self.url = "https://api.provisioning.nrfcloud.com/v1"
+        self.url = f"https://api.provisioning.{BASEURL}/v1"
         try:
             response = self._delete(path=f"/claimed-devices/{device_id}")
             return response.status_code
@@ -115,7 +118,7 @@ class NRFCloud():
 
         # Use the provisioning API endpoint for unclaiming
         original_url = self.url
-        self.url = "https://api.provisioning.nrfcloud.com/v1"
+        self.url = f"https://api.provisioning.{BASEURL}/v1"
         try:
             self._post(path=f"/claimed-devices/{device_id}/provisioning", data=data)
         finally:
