@@ -27,7 +27,7 @@ class FWType(Enum):
 class NRFCloudFOTAError(Exception):
     pass
 
-BASEURL = os.getenv(BASEURL, "nrfcloud.com")
+BASEURL = os.getenv('BASEURL', "nrfcloud.com")
 
 class NRFCloud():
     def __init__(self, api_key: str, url: str=f"https://api.{BASEURL}/v1", timeout: int=10) -> None:
