@@ -122,3 +122,7 @@ def dut_traces(dut_board):
 @pytest.fixture(scope="session")
 def coap_device_message_hex_file():
     return os.path.join(ARTIFACT_PATH, "thingy91x-nrf_cloud_coap_device_message/zephyr.signed.hex")
+
+@pytest.fixture(scope="session")
+def coap_cell_location_hex_file():
+    return os.path.join(ARTIFACT_PATH, "thingy91x-nrf_cloud_coap_cell_location/zephyr.signed.hex")
