@@ -45,7 +45,7 @@ def pytest_runtest_logfinish(nodeid, location):
     logger.info(f"Finished test: {nodeid}")
 
 @pytest.fixture(scope="function")
-def dut_board():
+def dut_board(request):
     all_uarts = get_uarts()
     if not all_uarts:
         pytest.fail("No UARTs found")
@@ -63,13 +63,9 @@ def dut_board():
 
     scan_log_for_assertions(uart_log)
 
-    modem_traces = modem_traces_uart.whole_log
+    sample_name = request.node.name
     modem_traces_uart.stop()
-
-    if len(modem_traces) > 0:
-        sample_name = request.node.name
-        with open(os.path.join("results/modem_traces", f"{sample_name}.bin"), "wb") as f:
-            f.write(modem_traces)
+    modem_traces_uart.save_to_file(os.path.join("results/modem_traces", f"{sample_name}.bin"))
 
 @pytest.fixture(scope="function")
 def dut_cloud(dut_board):
