@@ -65,7 +65,7 @@ def dut_board(request):
 
     sample_name = request.node.name
     modem_traces_uart.stop()
-    modem_traces_uart.save_to_file(os.path.join("results/modem_traces", f"{sample_name}.bin"))
+    modem_traces_uart.save_to_file(os.path.join("outcomes/", f"trace_{sample_name}.bin"))
 
 @pytest.fixture(scope="function")
 def dut_cloud(dut_board):

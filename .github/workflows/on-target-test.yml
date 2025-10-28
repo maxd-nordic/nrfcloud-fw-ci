@@ -143,8 +143,9 @@ jobs:
           TEST_REPORT_NAME: Firmware Test Report
           ARTIFACT_PATH: ${{ env.ARTIFACT_PATH }}
         run: |
-          rm -rf results || true
-          mkdir -p results/modem_traces
+          rm -rf results outcomes || true
+          mkdir -p results
+          mkdir -p outcomes
           PYTEST_PATH=tests/test_functional
 
           pytest -v "${pytest_marker[@]}" \
@@ -154,8 +155,9 @@ jobs:
 
       - name: Encrypt modem traces
         if: always()
+        working-directory: nrf-cloud-fw-ci
         run: |
-          for file in nrf-cloud-fw-ci/tests/on_target/results/modem_traces/*.bin; do
+          for file in tests/on_target/outcomes/*.bin; do
             bash scripts/encrypt_file.sh "$file" && rm "$file"
           done
 
@@ -176,7 +178,7 @@ jobs:
           name: test-report-${{ inputs.device }}
           path: |
             nrf-cloud-fw-ci/tests/on_target/results/*.html
-            nrf-cloud-fw-ci/tests/on_target/results/modem_traces/*.gpg
+            nrf-cloud-fw-ci/tests/on_target/outcomes/*.gpg
 
       - name: Push log files to artifacts
         if: always()
