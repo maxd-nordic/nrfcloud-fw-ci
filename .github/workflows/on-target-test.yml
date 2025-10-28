@@ -103,9 +103,9 @@ jobs:
           echo ARTIFACT_PATH=$PWD >> $GITHUB_ENV
 
       - name: Install dependencies
-        working-directory: nrf-cloud-fw-ci/tests/on_target
+        working-directory: nrf-cloud-fw-ci
         run: |
-          pip install -r requirements.txt --break-system-packages
+          pip install -r tests/on_target/requirements.txt --break-system-packages
           apt-get update && apt-get install -y gnupg
           gpg --import scripts/nrf-cloud-ci-pub.pgp
 
