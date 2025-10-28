@@ -36,10 +36,12 @@ def test_device_message(dut_cloud, coap_device_message_hex_file):
         logger.debug(f"Found messages: {messages}")
 
         latest_message = messages[0] if messages else None
-        logger.info(f"Latest message: {latest_message}")
         if latest_message:
-            check_message_age = dut_cloud.cloud.check_message_age(message=latest_message, seconds=30)
-            if check_message_age:
+            recent_enough = dut_cloud.cloud.check_message_age(message=latest_message, seconds=30)
+            message_content = latest_message[1]
+            content_match = "Hello World, from the CoAP Device Message Sample!" in message_content.get('sample_message', '')
+
+            if recent_enough and content_match:
                 break
         else:
             logger.debug("No message with recent timestamp, retrying...")
