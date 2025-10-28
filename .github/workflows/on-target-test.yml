@@ -123,7 +123,7 @@ jobs:
             echo "NRFCLOUD_API_KEY=${{ secrets.API_KEY_DEV }}" >> $GITHUB_ENV
           fi
 
-      - name: Ensure working device
+      - name: Recover device
         if: inputs.device == 'thingy91x' && inputs.recover_device == true
         working-directory: nrf-cloud-fw-ci
         run: |
