@@ -25,7 +25,7 @@ def test_device_message(dut_cloud, coap_device_message_hex_file):
             "nrf_cloud_coap_transport: Authorized",
             "Sent Hello World message with ID"
         ],
-        timeout=240
+        timeout=CLOUD_TIMEOUT
     )
 
     # Wait for message to be reported to cloud
