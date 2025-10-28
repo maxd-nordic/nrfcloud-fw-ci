@@ -51,6 +51,7 @@ def dut_board():
         pytest.fail("No UARTs found")
     log_uart_string = all_uarts[0]
     uart = Uart(log_uart_string, timeout=UART_TIMEOUT)
+    modem_traces_uart = UartBinary(all_uarts[1], timeout=UART_TIMEOUT)
 
     yield types.SimpleNamespace(
         uart=uart,
@@ -61,6 +62,14 @@ def dut_board():
     uart.stop()
 
     scan_log_for_assertions(uart_log)
+
+    modem_traces = modem_traces_uart.whole_log
+    modem_traces_uart.stop()
+
+    if len(modem_traces) > 0:
+        sample_name = request.node.name
+        with open(os.path.join("results/modem_traces", f"{sample_name}.bin"), "wb") as f:
+            f.write(modem_traces)
 
 @pytest.fixture(scope="function")
 def dut_cloud(dut_board):

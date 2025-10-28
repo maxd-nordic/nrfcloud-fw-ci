@@ -106,7 +106,8 @@ jobs:
         working-directory: nrf-cloud-fw-ci/tests/on_target
         run: |
           pip install -r requirements.txt --break-system-packages
-          nrfutil install trace
+          apt-get update && apt-get install -y gnupg
+          gpg --import scripts/nrf-cloud-ci-pub.pgp
 
       - name: Select API KEY by stage
         id: select_api_key
@@ -142,13 +143,21 @@ jobs:
           TEST_REPORT_NAME: Firmware Test Report
           ARTIFACT_PATH: ${{ env.ARTIFACT_PATH }}
         run: |
-          mkdir -p results
+          rm -rf results || true
+          mkdir -p results/modem_traces
           PYTEST_PATH=tests/test_functional
 
           pytest -v "${pytest_marker[@]}" \
             --junit-xml=results/test-results.xml \
             --html=results/test-results.html --self-contained-html \
             ${PYTEST_PATH}
+
+      - name: Encrypt modem traces
+        if: always()
+        run: |
+          for file in nrf-cloud-fw-ci/tests/on_target/results/modem_traces/*.bin; do
+            bash scripts/encrypt_file.sh "$file" && rm "$file"
+          done
 
       - name: Results
         if: always()
@@ -167,6 +176,7 @@ jobs:
           name: test-report-${{ inputs.device }}
           path: |
             nrf-cloud-fw-ci/tests/on_target/results/*.html
+            nrf-cloud-fw-ci/tests/on_target/results/modem_traces/*.gpg
 
       - name: Push log files to artifacts
         if: always()
