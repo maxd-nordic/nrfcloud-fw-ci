@@ -17,8 +17,13 @@ SEGGER = os.getenv('SEGGER')
 UART_ID = os.getenv('UART_ID', SEGGER)
 DEVICE_UUID = os.getenv('UUID')
 NRFCLOUD_API_KEY = os.getenv('NRFCLOUD_API_KEY')
-DUT_DEVICE_TYPE = os.getenv('DUT_DEVICE_TYPE')
+RUNNER_DEVICE_TYPE = os.getenv('RUNNER_DEVICE_TYPE')
 ARTIFACT_PATH = os.getenv('ARTIFACT_PATH')
+
+TRACEPORT_INDEX = 1
+
+if RUNNER_DEVICE_TYPE == "nrf9160dk":
+    TRACEPORT_INDEX = 2
 
 def get_uarts():
     base_path = "/dev/serial/by-id"
@@ -51,11 +56,11 @@ def dut_board(request):
         pytest.fail("No UARTs found")
     log_uart_string = all_uarts[0]
     uart = Uart(log_uart_string, timeout=UART_TIMEOUT)
-    modem_traces_uart = UartBinary(all_uarts[1], timeout=UART_TIMEOUT)
+    modem_traces_uart = UartBinary(all_uarts[TRACEPORT_INDEX], timeout=UART_TIMEOUT)
 
     yield types.SimpleNamespace(
         uart=uart,
-        device_type=DUT_DEVICE_TYPE
+        device_type=RUNNER_DEVICE_TYPE
     )
 
     uart_log = uart.whole_log

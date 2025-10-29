@@ -9,12 +9,45 @@ import sys
 import glob
 sys.path.append(os.getcwd())
 from utils.logger import get_logger
+from utils.nrf91_flasher import nrf91_flasher
 
 logger = get_logger()
 
 SEGGER = os.getenv('SEGGER')
+RUNNER_DEVICE_TYPE = os.getenv('RUNNER_DEVICE_TYPE')
+PROBE_TYPE = "JLINK"  # Default probe type
 
-def reset_device(serial=SEGGER, reset_kind="RESET_SYSTEM"):
+if RUNNER_DEVICE_TYPE in ["thingy91", "thingy91x"]:
+    PROBE_TYPE = "PYOCD"
+
+def reset_device(serial=SEGGER):
+    if PROBE_TYPE == "JLINK":
+        reset_device_jlink(serial)
+    else:
+        reset_device_pyocd(serial)
+
+def flash_device(hexfile, serial=SEGGER):
+    if PROBE_TYPE == "JLINK":
+        flash_device_jlink(hexfile, serial)
+    else:
+        flash_device_pyocd(hexfile, serial)
+
+def recover_device(serial=SEGGER):
+    if PROBE_TYPE == "JLINK":
+        recover_device_jlink(serial)
+    else:
+        recover_device_pyocd(serial)
+
+def reset_device_pyocd(serial=SEGGER):
+    nrf91_flasher(uid=serial)
+
+def flash_device_pyocd(hexfile, serial=SEGGER):
+    nrf91_flasher(uid=serial, program=hexfile)
+
+def recover_device_pyocd(serial=SEGGER):
+    nrf91_flasher(uid=serial, erase=True)
+
+def reset_device_jlink(serial=SEGGER, reset_kind="RESET_SYSTEM"):
     logger.info(f"Resetting device, segger: {serial}")
     try:
         result = subprocess.run(
@@ -31,7 +64,7 @@ def reset_device(serial=SEGGER, reset_kind="RESET_SYSTEM"):
         logger.info(e.stderr)
         raise
 
-def flash_device(hexfile, serial=SEGGER, extra_args=[]):
+def flash_device_jlink(hexfile, serial=SEGGER, extra_args=[]):
     # hexfile (str): Full path to file (hex or zip) to be programmed
     if not isinstance(hexfile, str):
         raise ValueError("hexfile cannot be None")
@@ -46,9 +79,9 @@ def flash_device(hexfile, serial=SEGGER, extra_args=[]):
         logger.info(e.stderr)
         raise
 
-    reset_device(serial)
+    reset_device_jlink(serial)
 
-def recover_device(serial=SEGGER, core="Application"):
+def recover_device_jlink(serial=SEGGER, core="Application"):
     logger.info(f"Recovering device, segger: {serial}")
     try:
         result = subprocess.run(['nrfutil', 'device', 'recover', '--serial-number', serial, '--core', core], check=True, text=True, capture_output=True)

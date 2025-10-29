@@ -1,10 +1,10 @@
 import os
 import pytest
 import time
-from utils.nrf91_flasher import nrf91_flasher
 import sys
 sys.path.append(os.getcwd())
 from utils.logger import get_logger
+from utils.flash_tools import flash_device, reset_device
 
 logger = get_logger()
 
@@ -14,12 +14,12 @@ def test_device_message(dut_cloud, coap_device_message_hex_file):
     '''
     Test that verifies that device can connect to nRF Cloud and send device messages.
     '''
-    nrf91_flasher(erase=False, program=os.path.abspath(coap_device_message_hex_file))
+    flash_device(os.path.abspath(coap_device_message_hex_file))
     dut_cloud.uart.xfactoryreset()
     dut_cloud.uart.flush()
 
     test_start_time = time.time()
-    nrf91_flasher()
+    reset_device()
 
     dut_cloud.uart.wait_for_str_ordered(
         [

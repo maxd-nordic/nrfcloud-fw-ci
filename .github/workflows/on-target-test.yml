@@ -158,7 +158,6 @@ jobs:
         shell: bash
         env:
           SEGGER: ${{ env.RUNNER_SERIAL_NUMBER }}
-          DUT_DEVICE_TYPE: ${{ vars.DUT_DEVICE_TYPE }}
           UUID: ${{ env.UUID }}
           NRFCLOUD_API_KEY: ${{ env.NRFCLOUD_API_KEY }}
           LOG_FILENAME: nrfcloud_fw_test_log
