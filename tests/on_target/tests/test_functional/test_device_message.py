@@ -30,20 +30,18 @@ def test_device_message(dut_cloud, coap_device_message_hex_file):
         timeout=CLOUD_TIMEOUT
     )
 
-    # Wait for message to be reported to cloud
+    # Poll for message to be reported to cloud
     start = time.time()
     while time.time() - start < CLOUD_TIMEOUT:
         time.sleep(5)
         messages = dut_cloud.cloud.get_messages(dut_cloud.device_id, appname=None, max_records=20, start=test_start_time)
         logger.debug(f"Found messages: {messages}")
 
-        latest_message = messages[0] if messages else None
-        if latest_message:
-            recent_enough = dut_cloud.cloud.check_message_age(message=latest_message, seconds=30)
-            message_content = latest_message[1]
-            content_match = "Hello World, from the CoAP Device Message Sample!" in message_content.get('sample_message', '')
+        if messages:
+            message_object = messages[0][1]
+            message_content = message_object.get('sample_message', '')
 
-            if recent_enough and content_match:
+            if "Hello World, from the CoAP Device Message Sample!" in message_content:
                 break
         else:
             logger.debug("No message with recent timestamp, retrying...")

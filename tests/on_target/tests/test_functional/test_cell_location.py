@@ -31,7 +31,7 @@ def test_cell_location(dut_cloud, coap_cell_location_hex_file):
         timeout=CLOUD_TIMEOUT
     )
 
-    # Wait for message to be reported to cloud
+    # Poll for location to be reported to cloud
     start = time.time()
     while time.time() - start < CLOUD_TIMEOUT:
         time.sleep(5)
