@@ -126,16 +126,28 @@ def dut_traces(dut_board):
 
 @pytest.fixture(scope="session")
 def coap_device_message_hex_file():
-    return os.path.join(ARTIFACT_PATH, f"{RUNNER_DEVICE_TYPE}-nrf_cloud_coap_device_message/zephyr.signed.hex")
+    for filename in ["merged.hex", "zephyr.signed.hex"]:
+        potential_path = os.path.join(ARTIFACT_PATH, f"{RUNNER_DEVICE_TYPE}-nrf_cloud_coap_device_message/{filename}")
+        if os.path.isfile(potential_path):
+            return potential_path
 
 @pytest.fixture(scope="session")
 def coap_cell_location_hex_file():
-    return os.path.join(ARTIFACT_PATH, f"{RUNNER_DEVICE_TYPE}-nrf_cloud_coap_cell_location/zephyr.signed.hex")
+    for filename in ["merged.hex", "zephyr.signed.hex"]:
+        potential_path = os.path.join(ARTIFACT_PATH, f"{RUNNER_DEVICE_TYPE}-nrf_cloud_coap_cell_location/{filename}")
+        if os.path.isfile(potential_path):
+            return potential_path
 
 @pytest.fixture(scope="session")
 def coap_fota_hex_file():
-    return os.path.join(ARTIFACT_PATH, f"{RUNNER_DEVICE_TYPE}-nrf_cloud_coap_fota/zephyr.signed.hex")
+    for filename in ["merged.hex", "zephyr.signed.hex"]:
+        potential_path = os.path.join(ARTIFACT_PATH, f"{RUNNER_DEVICE_TYPE}-nrf_cloud_coap_fota/{filename}")
+        if os.path.isfile(potential_path):
+            return potential_path
 
 @pytest.fixture(scope="session")
 def coap_fota_fmfu_hex_file():
-    return os.path.join(ARTIFACT_PATH, f"{RUNNER_DEVICE_TYPE}-nrf_cloud_coap_fota_fmfu/zephyr.signed.hex")
+    for filename in ["merged.hex", "zephyr.signed.hex"]:
+        potential_path = os.path.join(ARTIFACT_PATH, f"{RUNNER_DEVICE_TYPE}-nrf_cloud_coap_fota_fmfu/{filename}")
+        if os.path.isfile(potential_path):
+            return potential_path
