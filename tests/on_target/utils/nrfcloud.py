@@ -136,19 +136,18 @@ class NRFCloud():
         """
         return self.get_devices(path=f"/{device_id}", params=params)
 
-    def get_messages(self, device: str=None, appname: str=None, max_records: int=50, max_age_hrs: int=24) -> list:
+    def get_messages(self, device: str=None, appname: str=None, max_records: int=50, start: float=time.time()-300) -> list:
         """
         Get device messages.
 
         :param device: Limit result to messages from particular device
         :param appname: Filter by APPID
         :param max_records: Limit number of messages to fetch
-        :param max_age_hrs: Limit fetching messages by timestamp
+        :param start: start time in seconds since epoch
         :return: List of (timestamp, message)
         """
         end = datetime.now(timezone.utc).strftime(self.time_fmt)
-        start = (datetime.now(timezone.utc) - timedelta(
-            hours=max_age_hrs)).strftime(self.time_fmt)
+        start = datetime.fromtimestamp(start, timezone.utc).strftime(self.time_fmt)
         params = {
             'start': start,
             'end': end,
@@ -167,18 +166,17 @@ class NRFCloud():
         return [(timestamp(x), x['message'])
             for x in messages['items']]
 
-    def get_location_history(self, device: str=None, max_records: int=50, max_age_hrs: int=24) -> list:
+    def get_location_history(self, device: str=None, max_records: int=50, start: float=time.time()-300) -> list:
         """
         Get previously resolved locations, e.g. cell locations.
         :param device: Limit result to messages from particular device
         :param max_records: Limit number of messages to fetch
-        :param max_age_hrs: Limit fetching messages by timestamp
+        :param start: start time in seconds since epoch
         :return: List of location objects
         """
 
         end = datetime.now(timezone.utc).strftime(self.time_fmt)
-        start = (datetime.now(timezone.utc) - timedelta(
-            hours=max_age_hrs)).strftime(self.time_fmt)
+        start = datetime.fromtimestamp(start, timezone.utc).strftime(self.time_fmt)
         params = {
             'start': start,
             'end': end,

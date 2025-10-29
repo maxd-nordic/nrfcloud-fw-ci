@@ -17,6 +17,8 @@ def test_device_message(dut_cloud, coap_device_message_hex_file):
     nrf91_flasher(erase=False, program=os.path.abspath(coap_device_message_hex_file))
     dut_cloud.uart.xfactoryreset()
     dut_cloud.uart.flush()
+
+    test_start_time = time.time()
     nrf91_flasher()
 
     dut_cloud.uart.wait_for_str_ordered(
@@ -32,7 +34,7 @@ def test_device_message(dut_cloud, coap_device_message_hex_file):
     start = time.time()
     while time.time() - start < CLOUD_TIMEOUT:
         time.sleep(5)
-        messages = dut_cloud.cloud.get_messages(dut_cloud.device_id, appname=None, max_records=20, max_age_hrs=0.25)
+        messages = dut_cloud.cloud.get_messages(dut_cloud.device_id, appname=None, max_records=20, start=test_start_time)
         logger.debug(f"Found messages: {messages}")
 
         latest_message = messages[0] if messages else None
