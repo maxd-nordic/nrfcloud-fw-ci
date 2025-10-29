@@ -89,8 +89,8 @@ jobs:
       - name: Restore from cache
         if: steps.cache-check.outputs.cache-hit == 'true'
         run: |
-          mkdir -p $VERSION
-          cp -r artifact-cache/$VERSION/* $VERSION/
+          mkdir -p $VERSION/artifacts
+          cp -r artifact-cache/$VERSION/* $VERSION/artifacts
           echo "Restored build $VERSION from cache"
 
       - name: Initialize Workspace
