@@ -164,7 +164,6 @@ jobs:
             west build -b thingy91/nrf9160/ns --build-dir $VERSION/thingy91-nrf_cloud_coap_device_message        nrf/samples/cellular/nrf_cloud_coap_device_message  -- -DEXTRA_CONF_FILE=$COAP_SERVER_FRAGMENT -Dnrf_cloud_coap_device_message_SNIPPET=nrf91-modem-trace-uart
             west build -b thingy91/nrf9160/ns --build-dir $VERSION/thingy91-nrf_cloud_coap_cell_location         nrf/samples/cellular/nrf_cloud_coap_cell_location   -- -DEXTRA_CONF_FILE=$COAP_SERVER_FRAGMENT -Dnrf_cloud_coap_cell_location_SNIPPET=nrf91-modem-trace-uart
             west build -b thingy91/nrf9160/ns --build-dir $VERSION/thingy91-nrf_cloud_coap_fota                  nrf/samples/cellular/nrf_cloud_coap_fota            -- -DEXTRA_CONF_FILE=$COAP_SERVER_FRAGMENT -Dnrf_cloud_coap_fota_SNIPPET=nrf91-modem-trace-uart
-            west build -b thingy91/nrf9160/ns --build-dir $VERSION/thingy91-nrf_cloud_coap_fota_fmfu             nrf/samples/cellular/nrf_cloud_coap_fota            -- -DEXTRA_CONF_FILE="full_modem_fota.conf;$COAP_SERVER_FRAGMENT" -Dnrf_cloud_coap_fota_SNIPPET=nrf91-modem-trace-uart
           fi
           # nRF9160-DK
           if [[ "${{ inputs.device }}" == "nrf9160dk" ]]; then
