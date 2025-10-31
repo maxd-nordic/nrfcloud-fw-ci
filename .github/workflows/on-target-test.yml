@@ -72,12 +72,6 @@ jobs:
         - /dev:/dev:rw
         - /run/udev:/run/udev
     steps:
-      - name: Display Runner Serial Number
-        # The serial number is set by a pre-job script in .env file on the local actions-runner directory
-        run: |
-          echo "Inside Container - Runner Serial Number: $RUNNER_SERIAL_NUMBER"
-          echo "Inside Container - Runner Serial Number: ${{ env.RUNNER_SERIAL_NUMBER }}"
-
       - name: Checkout
         uses: actions/checkout@v4
         with:
@@ -101,6 +95,18 @@ jobs:
           cd tests/on_target/artifacts/build-*-${{ inputs.device }}
           ls -l
           echo ARTIFACT_PATH=$PWD >> $GITHUB_ENV
+          echo ARTIFACT_VERSION=$(basename $PWD | cut -d'-' -f1-5) >> $GITHUB_ENV
+
+      - name: Display Run Details
+        # The serial number is set by a pre-job script in .env file on the local actions-runner directory
+        run: |
+          echo "Inside Container - Runner Serial Number: $RUNNER_SERIAL_NUMBER"
+          echo "Inside Container - Runner Serial Number: ${{ env.RUNNER_SERIAL_NUMBER }}"
+          echo "stage=${{ inputs.stage }}"
+          echo "ncs-commit=${{ inputs.ncs-commit }}"
+          echo "artifact_version=${{ env.ARTIFACT_VERSION }}"
+          echo "device=${{ inputs.device }}"
+          echo "recover_device=${{ inputs.recover_device }}"
 
       - name: Install dependencies
         working-directory: nrf-cloud-fw-ci
@@ -197,16 +203,8 @@ jobs:
         uses: actions/upload-artifact@v4
         id: artifact-report
         with:
-          name: test-report-${{ inputs.device }}
+          name: test-report-${{ env.ARTIFACT_VERSION }}
           path: |
             nrf-cloud-fw-ci/tests/on_target/results/*.html
             nrf-cloud-fw-ci/tests/on_target/outcomes/*.gpg
-
-      - name: Push log files to artifacts
-        if: always()
-        uses: actions/upload-artifact@v4
-        id: artifact-upload-test-logs
-        with:
-          name: test-logs-${{ inputs.device }}
-          path: |
             nrf-cloud-fw-ci/tests/on_target/outcomes/logs/*.txt
