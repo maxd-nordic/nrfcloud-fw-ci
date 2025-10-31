@@ -70,12 +70,13 @@ class Uart:
             if start + 10 < time.time():
                 raise UartLogTimeout(f"AT command \"{cmd}\" timed out")
 
-    def xfactoryreset(self) -> None:
+    def xfactoryreset(self, shell = False) -> None:
         try:
-            self.at_cmd_write("at AT")
+            prefix = "at " if shell else ""
+            self.at_cmd_write(f"{prefix}AT")
             self.write("att_network disconnect\r\n")
-            self.at_cmd_write("at AT+CFUN=4")
-            self.at_cmd_write("at AT%XFACTORYRESET=0")
+            self.at_cmd_write(f"{prefix}AT+CFUN=4")
+            self.at_cmd_write(f"{prefix}AT%XFACTORYRESET=0")
         except UartLogTimeout:
             logger.error("AT FACTORYRESET failed, continuing")
 
