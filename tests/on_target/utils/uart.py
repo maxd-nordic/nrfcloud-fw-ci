@@ -74,7 +74,6 @@ class Uart:
         try:
             prefix = "at " if shell else ""
             self.at_cmd_write(f"{prefix}AT")
-            self.write("att_network disconnect\r\n")
             self.at_cmd_write(f"{prefix}AT+CFUN=4")
             self.at_cmd_write(f"{prefix}AT%XFACTORYRESET=0")
         except UartLogTimeout:
