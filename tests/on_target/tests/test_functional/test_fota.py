@@ -65,7 +65,7 @@ supported_mfw_versions = {
 
 APP_BUNDLEID = os.getenv("APP_BUNDLEID", None)
 
-def await_nrfcloud(func, expected, field, timeout):
+def await_nrfcloud(func, expected, field, timeout, break_value="CANCELLED"):
     start = time.time()
     logger.info(f"Awaiting {field} == {expected} in nrfcloud shadow...")
     while True:
@@ -78,6 +78,8 @@ def await_nrfcloud(func, expected, field, timeout):
             logger.warning(f"Exception {e} during waiting for {field}")
             continue
         logger.debug(f"Reported {field}: {data}")
+        if data == break_value:
+            raise RuntimeError(f"{field} changed to unexpected value: {break_value}")
         if expected in data:
             break
 
@@ -130,6 +132,7 @@ def test_mfw_delta_fota(dut_fota, coap_fota_hex_file):
         pytest.skip(f"FOTA create_job REST API error: {e}")
     logger.info(f"Created FOTA Job (ID: {dut_fota.data['job_id']})")
 
+    logger.info("Waiting for FOTA to start...")
     await_nrfcloud(
         functools.partial(dut_fota.fota.get_fota_status, dut_fota.data['job_id']),
         "IN_PROGRESS",
@@ -137,12 +140,16 @@ def test_mfw_delta_fota(dut_fota, coap_fota_hex_file):
         CLOUD_TIMEOUT
     )
     reset_device()
+
+    logger.info("Waiting for FOTA to complete...")
     await_nrfcloud(
         functools.partial(dut_fota.fota.get_fota_status, dut_fota.data['job_id']),
         "COMPLETED",
         "FOTA status",
         CLOUD_TIMEOUT
     )
+
+    logger.info("Verifying new modem FW version...")
     await_nrfcloud(
         functools.partial(get_modemversion, dut_fota),
         new_version,
