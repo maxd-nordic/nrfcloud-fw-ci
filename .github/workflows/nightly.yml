@@ -1,0 +1,52 @@
+name: Nightly Tests
+
+on:
+  schedule:
+    - cron: '0 2 * * *'  # Runs daily at 02:00 UTC
+  workflow_dispatch:
+    inputs:
+      stage:
+        description: 'Stage to build'
+        default: 'prod'
+        type: string
+      ncs-commit:
+        description: 'NCS commit to build'
+        default: 'main'
+        type: string
+      recover_device:
+        description: 'Recover device before testing'
+        default: false
+        type: boolean
+
+jobs:
+  get-ncs-commit:
+    runs-on: ubuntu-24.04
+    outputs:
+      commit: ${{ steps.get-commit.outputs.commit }}
+    steps:
+      - name: Get latest commit from sdk-nrf
+        shell: bash
+        id: get-commit
+        run: |
+          if [ -z "${{ inputs.ncs-commit }}" ] || [ "${{ inputs.ncs-commit }}" == "main" ]; then
+            echo "Fetching latest commit from main branch"
+            COMMIT=$(git ls-remote https://github.com/nrfconnect/sdk-nrf.git HEAD | awk '{print $1}')
+            echo "commit=$COMMIT" >> $GITHUB_OUTPUT
+            echo "Latest sdk-nrf commit: $COMMIT"
+          else
+            echo "Using specified commit: ${{ inputs.ncs-commit }}"
+            echo "commit=${{ inputs.ncs-commit }}" >> $GITHUB_OUTPUT
+          fi
+
+  on-target-test:
+    needs: get-ncs-commit
+    strategy:
+      matrix:
+        device: [thingy91x, thingy91, nrf9160dk, nrf9151dk]
+    uses: ./.github/workflows/on-target-test.yml
+    with:
+      stage: ${{ inputs.stage || 'prod' }}
+      ncs-commit: ${{ needs.get-ncs-commit.outputs.commit }}
+      device: ${{ matrix.device }}
+      recover_device: ${{ inputs.recover_device || false }}
+    secrets: inherit
