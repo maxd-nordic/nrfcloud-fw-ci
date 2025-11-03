@@ -18,6 +18,22 @@ MFW_202_VERSION = "mfw_nrf91x1_2.0.3"
 
 APP_BUNDLEID = os.getenv("APP_BUNDLEID", None)
 
+def await_nrfcloud(func, expected, field, timeout):
+    start = time.time()
+    logger.info(f"Awaiting {field} == {expected} in nrfcloud shadow...")
+    while True:
+        time.sleep(5)
+        if time.time() - start > timeout:
+            raise RuntimeError(f"Timeout awaiting {field} update")
+        try:
+            data = func()
+        except Exception as e:
+            logger.warning(f"Exception {e} during waiting for {field}")
+            continue
+        logger.debug(f"Reported {field}: {data}")
+        if expected in data:
+            break
+
 def test_mfw_delta_fota(dut_fota, coap_fota_hex_file):
     '''
     Test that verifies that device can connect to nRF Cloud and perform FOTA update.
