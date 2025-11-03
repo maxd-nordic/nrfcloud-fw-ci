@@ -2,6 +2,7 @@ import os
 import pytest
 import time
 import sys
+import functools
 sys.path.append(os.getcwd())
 from utils.logger import get_logger
 from utils.flash_tools import flash_device, reset_device
