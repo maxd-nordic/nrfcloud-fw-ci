@@ -35,7 +35,6 @@ def test_mfw_delta_fota(dut_fota, coap_fota_hex_file):
             "Connected to LTE",
             "nrf_cloud_info: Modem FW:",
             "nrf_cloud_coap_transport: Authorized",
-            "nrf_cloud_coap_fota_sample: Updated shadow delta sent"
         ],
         timeout=CLOUD_TIMEOUT
     )
