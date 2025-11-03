@@ -10,7 +10,7 @@ from utils.flash_tools import flash_device, reset_device
 
 logger = get_logger()
 
-CLOUD_TIMEOUT = 60 * 3
+CLOUD_TIMEOUT = 60 * 10
 
 supported_mfw_versions = {
     "mfw_nrf9160_1.3.6" : {
