@@ -100,13 +100,13 @@ jobs:
       - name: Display Run Details
         # The serial number is set by a pre-job script in .env file on the local actions-runner directory
         run: |
-          echo "Inside Container - Runner Serial Number: $RUNNER_SERIAL_NUMBER"
-          echo "Inside Container - Runner Serial Number: ${{ env.RUNNER_SERIAL_NUMBER }}"
-          echo "stage=${{ inputs.stage }}"
-          echo "ncs-commit=${{ inputs.ncs-commit }}"
-          echo "artifact_version=${{ env.ARTIFACT_VERSION }}"
-          echo "device=${{ inputs.device }}"
-          echo "recover_device=${{ inputs.recover_device }}"
+          echo "# Parameters" >> $GITHUB_STEP_SUMMARY
+          echo "Inside Container - Runner Serial Number: $RUNNER_SERIAL_NUMBER" >> $GITHUB_STEP_SUMMARY
+          echo "stage=${{ inputs.stage }}" >> $GITHUB_STEP_SUMMARY
+          echo "ncs-commit=${{ inputs.ncs-commit }}" >> $GITHUB_STEP_SUMMARY
+          echo "artifact_version=${{ env.ARTIFACT_VERSION }}" >> $GITHUB_STEP_SUMMARY
+          echo "device=${{ inputs.device }}" >> $GITHUB_STEP_SUMMARY
+          echo "recover_device=${{ inputs.recover_device }}" >> $GITHUB_STEP_SUMMARY
 
       - name: Install dependencies
         working-directory: nrf-cloud-fw-ci
