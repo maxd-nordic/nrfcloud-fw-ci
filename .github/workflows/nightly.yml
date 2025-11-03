@@ -41,6 +41,7 @@ jobs:
   on-target-test:
     needs: get-ncs-commit
     strategy:
+      fail-fast: false
       matrix:
         device: [thingy91x, thingy91, nrf9160dk, nrf9151dk]
     uses: ./.github/workflows/on-target-test.yml
