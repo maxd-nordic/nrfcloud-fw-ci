@@ -63,17 +63,18 @@ def test_mfw_delta_fota(dut_fota, coap_fota_hex_file):
         functools.partial(dut_fota.fota.get_fota_status, dut_fota.data['job_id']),
         "IN_PROGRESS",
         "FOTA status",
-        fotatimeout
+        CLOUD_TIMEOUT
     )
+    reset_device()
     await_nrfcloud(
         functools.partial(dut_fota.fota.get_fota_status, dut_fota.data['job_id']),
         "COMPLETED",
         "FOTA status",
-        fotatimeout
+        CLOUD_TIMEOUT
     )
     await_nrfcloud(
         functools.partial(get_appversion, dut_fota),
         new_version,
         "appVersion",
-        DEVICE_MSG_TIMEOUT
+        CLOUD_TIMEOUT
     )
