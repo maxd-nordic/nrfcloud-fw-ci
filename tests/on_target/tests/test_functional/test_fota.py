@@ -2,6 +2,7 @@ import os
 import pytest
 import time
 import sys
+import re
 import functools
 sys.path.append(os.getcwd())
 from utils.logger import get_logger
@@ -109,11 +110,12 @@ def test_mfw_delta_fota(dut_fota, coap_fota_hex_file):
         timeout=CLOUD_TIMEOUT
     )
 
-    for line in dut_fota.uart.whole_log.splitlines():
-        if "Modem FW:" in line:
-            current_version = line.split("Modem FW:")[-1].strip()
-            logger.info(f"Current Modem FW version: {current_version}")
-            break
+    for match in re.finditer(r"Modem FW:\s+(mfw_nrf9..._\d\.\d\.\d(-FOTA-TEST)?)", dut_fota.uart.whole_log, re.MULTILINE):
+        current_version = match.group(0)
+        logger.info(f"Current Modem FW version: {current_version}")
+        break
+    else:
+        raise RuntimeError(f"Failed to find current modem FW version")
 
     if current_version in supported_mfw_versions:
         bundle_id = supported_mfw_versions[current_version]["bundle_id_delta"]
