@@ -51,13 +51,13 @@ supported_mfw_versions = {
     },
     "mfw_nrf91x1_2.0.3" : {
         "new_version_delta" : "mfw_nrf91x1_2.0.3-FOTA-TEST",
-        "bundle_id_delta": "b8f85a5a-fe11-46fe-9bf9-81d4a9129338",
+        "bundle_id_delta": "c8443b86-d295-4305-8e39-0ae2731178e1",
         "new_version_full" : "mfw_nrf91x1_2.0.2",
         "bundle_id_full": "d692915d-d978-4c77-ab02-f05f511971f9",
     },
     "mfw_nrf91x1_2.0.3-FOTA-TEST" : {
         "new_version_delta" : "mfw_nrf91x1_2.0.3",
-        "bundle_id_delta": "2b78985e-9519-42a8-9814-2eec9730a4e2",
+        "bundle_id_delta": "fcefc1f6-ee51-469a-9c06-8237a42acf95",
         "new_version_full" : "mfw_nrf91x1_2.0.2",
         "bundle_id_full": "d692915d-d978-4c77-ab02-f05f511971f9",
     },
