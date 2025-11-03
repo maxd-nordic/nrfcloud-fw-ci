@@ -18,13 +18,10 @@ MFW_202_VERSION = "mfw_nrf91x1_2.0.3"
 
 APP_BUNDLEID = os.getenv("APP_BUNDLEID", None)
 
-def test_app_fota(dut_fota, coap_fota_hex_file):
+def test_mfw_delta_fota(dut_fota, coap_fota_hex_file):
     '''
     Test that verifies that device can connect to nRF Cloud and perform FOTA update.
     '''
-
-    if not APP_BUNDLEID:
-        pytest.skip("APP_BUNDLEID not set, skipping FOTA test")
 
     flash_device(os.path.abspath(coap_fota_hex_file))
     dut_cloud.uart.xfactoryreset()
@@ -36,11 +33,25 @@ def test_app_fota(dut_fota, coap_fota_hex_file):
     dut_cloud.uart.wait_for_str_ordered(
         [
             "Connected to LTE",
+            "nrf_cloud_info: Modem FW:",
             "nrf_cloud_coap_transport: Authorized",
             "nrf_cloud_coap_fota_sample: Updated shadow delta sent"
         ],
         timeout=CLOUD_TIMEOUT
     )
+
+    for line in dut_cloud.uart.whole_log.splitlines():
+        if "Modem FW:" in line:
+            current_version = line.split("Modem FW:")[-1].strip()
+            logger.info(f"Current Modem FW version: {current_version}")
+            break
+
+    if MFW_DELTA_VERSION_20X_FOTA_TEST in current_version:
+        bundle_id = DELTA_MFW_BUNDLEID_FOTA_TEST_TO_20X
+    elif MFW_202_VERSION in current_version:
+        bundle_id = DELTA_MFW_BUNDLEID_20X_TO_FOTA_TEST
+    else:
+        raise RuntimeError(f"Unexpected starting modem FW version: {current_version}")
 
     try:
         dut_fota.data['job_id'] = dut_fota.fota.create_fota_job(dut_fota.device_id, bundle_id)
