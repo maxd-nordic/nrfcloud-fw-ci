@@ -111,7 +111,7 @@ def test_mfw_delta_fota(dut_fota, coap_fota_hex_file):
     )
 
     for match in re.finditer(r"Modem FW:\s+(mfw_nrf9..._\d\.\d\.\d(-FOTA-TEST)?)", dut_fota.uart.whole_log, re.MULTILINE):
-        current_version = match.group(0)
+        current_version = match.group(1)
         logger.info(f"Current Modem FW version: {current_version}")
         break
     else:
