@@ -11,11 +11,56 @@ logger = get_logger()
 
 CLOUD_TIMEOUT = 60 * 3
 
-DELTA_MFW_BUNDLEID_20X_TO_FOTA_TEST = "b8f85a5a-fe11-46fe-9bf9-81d4a9129338"
-DELTA_MFW_BUNDLEID_FOTA_TEST_TO_20X = "2b78985e-9519-42a8-9814-2eec9730a4e2"
-FULL_MFW_BUNDLEID = "61cedb8d-0b6f-4684-9150-5aa782c6c8d5"
-MFW_DELTA_VERSION_20X_FOTA_TEST = "mfw_nrf91x1_2.0.3-FOTA-TEST"
-MFW_202_VERSION = "mfw_nrf91x1_2.0.3"
+supported_mfw_versions = {
+    "mfw_nrf9160_1.3.6" : {
+        "new_version_delta" : "mfw_nrf9160_1.3.6-FOTA-TEST",
+        "bundle_id_delta": "d2ab6fe2-e7fb-49f1-be0b-46674d5ea6ca",
+        "new_version_full" : "mfw_nrf9160_1.3.7",
+        "bundle_id_full": "e5cd8409-f828-4c3d-b5b0-7544d5856c83",
+    },
+    "mfw_nrf9160_1.3.6-FOTA-TEST" : {
+        "new_version_delta" : "mfw_nrf9160_1.3.6",
+        "bundle_id_delta": "5c88b571-5c13-4e2c-b7ad-979d93334475",
+        "new_version_full" : "mfw_nrf9160_1.3.7",
+        "bundle_id_full": "e5cd8409-f828-4c3d-b5b0-7544d5856c83",
+    },
+    "mfw_nrf9160_1.3.7" : {
+        "new_version_delta" : "mfw_nrf9160_1.3.7-FOTA-TEST",
+        "bundle_id_delta": "f3d9321d-32bd-44d2-b83b-121e015dc545",
+        "new_version_full" : "mfw_nrf9160_1.3.6",
+        "bundle_id_full": "86a5000c-3026-4684-8fb1-19fa668bc72c",
+    },
+    "mfw_nrf9160_1.3.7-FOTA-TEST" : {
+        "new_version_delta" : "mfw_nrf9160_1.3.7",
+        "bundle_id_delta": "264ef36d-80e7-4759-a0d0-49923341289b",
+        "new_version_full" : "mfw_nrf9160_1.3.6",
+        "bundle_id_full": "86a5000c-3026-4684-8fb1-19fa668bc72c",
+    },
+    "mfw_nrf91x1_2.0.2" : {
+        "new_version_delta" : "mfw_nrf91x1_2.0.2-FOTA-TEST",
+        "bundle_id_delta": "59cec896-c842-40fe-9a95-a4f3e88a4cdb",
+        "new_version_full" : "mfw_nrf91x1_2.0.3",
+        "bundle_id_full": "61cedb8d-0b6f-4684-9150-5aa782c6c8d5",
+    },
+    "mfw_nrf91x1_2.0.2-FOTA-TEST" : {
+        "new_version_delta" : "mfw_nrf91x1_2.0.2",
+        "bundle_id_delta": "7b79d95d-5f3b-4ae1-9a04-214ec273515d",
+        "new_version_full" : "mfw_nrf91x1_2.0.3",
+        "bundle_id_full": "61cedb8d-0b6f-4684-9150-5aa782c6c8d5",
+    },
+    "mfw_nrf91x1_2.0.3" : {
+        "new_version_delta" : "mfw_nrf91x1_2.0.3-FOTA-TEST",
+        "bundle_id_delta": "b8f85a5a-fe11-46fe-9bf9-81d4a9129338",
+        "new_version_full" : "mfw_nrf91x1_2.0.2",
+        "bundle_id_full": "d692915d-d978-4c77-ab02-f05f511971f9",
+    },
+    "mfw_nrf91x1_2.0.3-FOTA-TEST" : {
+        "new_version_delta" : "mfw_nrf91x1_2.0.3",
+        "bundle_id_delta": "2b78985e-9519-42a8-9814-2eec9730a4e2",
+        "new_version_full" : "mfw_nrf91x1_2.0.2",
+        "bundle_id_full": "d692915d-d978-4c77-ab02-f05f511971f9",
+    },
+}
 
 APP_BUNDLEID = os.getenv("APP_BUNDLEID", None)
 
@@ -70,12 +115,9 @@ def test_mfw_delta_fota(dut_fota, coap_fota_hex_file):
             logger.info(f"Current Modem FW version: {current_version}")
             break
 
-    if MFW_DELTA_VERSION_20X_FOTA_TEST in current_version:
-        bundle_id = DELTA_MFW_BUNDLEID_FOTA_TEST_TO_20X
-        new_version = MFW_202_VERSION
-    elif MFW_202_VERSION in current_version:
-        bundle_id = DELTA_MFW_BUNDLEID_20X_TO_FOTA_TEST
-        new_version = MFW_DELTA_VERSION_20X_FOTA_TEST
+    if current_version in supported_mfw_versions:
+        bundle_id = supported_mfw_versions[current_version]["bundle_id_delta"]
+        new_version = supported_mfw_versions[current_version]["new_version_delta"]
     else:
         raise RuntimeError(f"Unexpected starting modem FW version: {current_version}")
 
