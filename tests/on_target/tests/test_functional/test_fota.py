@@ -35,6 +35,14 @@ def await_nrfcloud(func, expected, field, timeout):
         if expected in data:
             break
 
+def get_appversion(dut_fota):
+    shadow = dut_fota.fota.get_device(dut_fota.device_id)
+    return shadow["state"]["reported"]["device"]["deviceInfo"]["appVersion"]
+
+def get_modemversion(dut_fota):
+    shadow = dut_fota.fota.get_device(dut_fota.device_id)
+    return shadow["state"]["reported"]["device"]["deviceInfo"]["modemFirmware"]
+
 def test_mfw_delta_fota(dut_fota, coap_fota_hex_file):
     '''
     Test that verifies that device can connect to nRF Cloud and perform FOTA update.
@@ -64,8 +72,10 @@ def test_mfw_delta_fota(dut_fota, coap_fota_hex_file):
 
     if MFW_DELTA_VERSION_20X_FOTA_TEST in current_version:
         bundle_id = DELTA_MFW_BUNDLEID_FOTA_TEST_TO_20X
+        new_version = MFW_202_VERSION
     elif MFW_202_VERSION in current_version:
         bundle_id = DELTA_MFW_BUNDLEID_20X_TO_FOTA_TEST
+        new_version = MFW_DELTA_VERSION_20X_FOTA_TEST
     else:
         raise RuntimeError(f"Unexpected starting modem FW version: {current_version}")
 
@@ -90,8 +100,8 @@ def test_mfw_delta_fota(dut_fota, coap_fota_hex_file):
         CLOUD_TIMEOUT
     )
     await_nrfcloud(
-        functools.partial(get_appversion, dut_fota),
+        functools.partial(get_modemversion, dut_fota),
         new_version,
-        "appVersion",
+        "modemFirmware",
         CLOUD_TIMEOUT
     )
