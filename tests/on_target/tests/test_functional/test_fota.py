@@ -24,13 +24,13 @@ def test_mfw_delta_fota(dut_fota, coap_fota_hex_file):
     '''
 
     flash_device(os.path.abspath(coap_fota_hex_file))
-    dut_cloud.uart.xfactoryreset()
-    dut_cloud.uart.flush()
+    dut_fota.uart.xfactoryreset()
+    dut_fota.uart.flush()
 
     test_start_time = time.time()
     reset_device()
 
-    dut_cloud.uart.wait_for_str_ordered(
+    dut_fota.uart.wait_for_str_ordered(
         [
             "Connected to LTE",
             "nrf_cloud_info: Modem FW:",
@@ -40,7 +40,7 @@ def test_mfw_delta_fota(dut_fota, coap_fota_hex_file):
         timeout=CLOUD_TIMEOUT
     )
 
-    for line in dut_cloud.uart.whole_log.splitlines():
+    for line in dut_fota.uart.whole_log.splitlines():
         if "Modem FW:" in line:
             current_version = line.split("Modem FW:")[-1].strip()
             logger.info(f"Current Modem FW version: {current_version}")
