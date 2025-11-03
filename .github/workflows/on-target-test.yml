@@ -61,10 +61,6 @@ jobs:
     environment: ${{ inputs.device }}
     name: Target Test - ${{ inputs.device }}
     needs: build
-    permissions:
-      actions: read
-      contents: write
-      packages: read
     container:
       image: ghcr.io/nrfconnect/asset-tracker-template:test-docker-v1.0.1
       options: --privileged
