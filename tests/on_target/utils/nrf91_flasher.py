@@ -93,6 +93,9 @@ if __name__ == "__main__":
 
     args = parser.parse_args()
 
+    if args.erase:
+        options["auto_unlock"] = True
+
     nrf91_flasher(
         erase=args.erase,
         program=args.program,
