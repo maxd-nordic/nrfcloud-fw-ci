@@ -44,11 +44,12 @@ jobs:
       fail-fast: false
       matrix:
         device: [thingy91x, thingy91, nrf9160dk, nrf9151dk]
+        group: [coap, rest]
     uses: ./.github/workflows/on-target-test.yml
     with:
       stage: ${{ inputs.stage || 'prod' }}
       ncs-commit: ${{ needs.get-ncs-commit.outputs.commit }}
       device: ${{ matrix.device }}
       recover_device: ${{ inputs.recover_device || false }}
-      group: 'coap'
+      group: ${{ matrix.group }}
     secrets: inherit
