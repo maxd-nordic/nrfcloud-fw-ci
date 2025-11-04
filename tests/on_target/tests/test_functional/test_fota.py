@@ -174,7 +174,7 @@ def test_mfw_full_fota(dut_fota, coap_fota_fmfu_hex_file):
     Test that verifies that device can connect to nRF Cloud and perform MFW full FOTA update.
     '''
 
-    setup_fota_sample(dut_fota, coap_fota_hex_file)
+    setup_fota_sample(dut_fota, coap_fota_fmfu_hex_file)
 
     current_version = parse_mfw_version_from_log(dut_fota.uart.whole_log)
 
@@ -201,7 +201,11 @@ def test_app_fota(dut_fota, coap_fota_hex_file, coap_fota_test_zip_file):
     '''
     Test that verifies that device can connect to nRF Cloud and perform application FOTA update.
     '''
-    bundle_id = dut_fota.fota.upload_zephyr_zip(zip_path=coap_fota_test_zip_file, name=ARTIFACT_VERSION)
+    bundle_id = dut_fota.fota.upload_zephyr_zip(
+        zip_path=coap_fota_test_zip_file,
+        version="1.0.0-fotatest",
+        name=ARTIFACT_VERSION
+    )
 
     try:
         perform_any_fota(dut_fota, bundle_id)
