@@ -25,6 +25,11 @@ TRACEPORT_INDEX = 1
 if RUNNER_DEVICE_TYPE == "nrf9160dk":
     TRACEPORT_INDEX = 2
 
+if RUNNER_DEVICE_TYPE in ["thingy91", "thingy91x"]:
+    HEX_FILE_NAME = "zephyr.signed.hex"
+else:
+    HEX_FILE_NAME = "merged.hex"
+
 def get_uarts():
     base_path = "/dev/serial/by-id"
     try:
@@ -124,30 +129,27 @@ def dut_traces(dut_board):
 
     uart_trace.stop()
 
+def find_hex_file(test_name):
+    potential_path = os.path.join(ARTIFACT_PATH, f"{RUNNER_DEVICE_TYPE}-{test_name}/{HEX_FILE_NAME}")
+    if os.path.isfile(potential_path):
+        return potential_path
+
 @pytest.fixture(scope="session")
 def coap_device_message_hex_file():
-    for filename in ["merged.hex"]:
-        potential_path = os.path.join(ARTIFACT_PATH, f"{RUNNER_DEVICE_TYPE}-nrf_cloud_coap_device_message/{filename}")
-        if os.path.isfile(potential_path):
-            return potential_path
+    return find_hex_file("nrf_cloud_coap_device_message") or pytest.fail("HEX file not found")
 
 @pytest.fixture(scope="session")
 def coap_cell_location_hex_file():
-    for filename in ["merged.hex"]:
-        potential_path = os.path.join(ARTIFACT_PATH, f"{RUNNER_DEVICE_TYPE}-nrf_cloud_coap_cell_location/{filename}")
-        if os.path.isfile(potential_path):
-            return potential_path
+    return find_hex_file("nrf_cloud_coap_cell_location") or pytest.fail("HEX file not found")
 
 @pytest.fixture(scope="session")
 def coap_fota_hex_file():
-    for filename in ["merged.hex"]:
-        potential_path = os.path.join(ARTIFACT_PATH, f"{RUNNER_DEVICE_TYPE}-nrf_cloud_coap_fota/{filename}")
-        if os.path.isfile(potential_path):
-            return potential_path
+    return find_hex_file("nrf_cloud_coap_fota") or pytest.fail("HEX file not found")
 
 @pytest.fixture(scope="session")
 def coap_fota_fmfu_hex_file():
-    for filename in ["merged.hex"]:
-        potential_path = os.path.join(ARTIFACT_PATH, f"{RUNNER_DEVICE_TYPE}-nrf_cloud_coap_fota_fmfu/{filename}")
-        if os.path.isfile(potential_path):
-            return potential_path
+    return find_hex_file("nrf_cloud_coap_fota_fmfu") or pytest.fail("HEX file not found")
+
+@pytest.fixture(scope="session")
+def coap_fota_test_hex_file():
+    return find_hex_file("nrf_cloud_coap_fota_test") or find_hex_file("nrf_cloud_coap_fota_fmfu") or pytest.fail("HEX file not found")
