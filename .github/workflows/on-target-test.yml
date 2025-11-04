@@ -28,6 +28,11 @@ on:
         required: true
         default: 'coap'
         type: string
+      test_all:
+        description: Run all tests
+        type: boolean
+        required: false
+        default: false
   workflow_dispatch:
     inputs:
       stage:
@@ -55,6 +60,11 @@ on:
         required: true
         default: 'coap'
         type: string
+      test_all:
+        description: Run all tests
+        type: boolean
+        required: false
+        default: false
 
 jobs:
   build:
@@ -182,6 +192,12 @@ jobs:
           mkdir -p results
           mkdir -p outcomes
           PYTEST_PATH=tests/test_functional
+
+          if [[ ${{ inputs.test_all }} == true ]]; then
+            pytest_marker=()
+          else
+            pytest_marker=(-m "not slow")
+          fi
 
           pytest -v "${pytest_marker[@]}" \
             --junit-xml=results/test-results.xml \
