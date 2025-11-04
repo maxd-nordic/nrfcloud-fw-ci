@@ -126,7 +126,7 @@ def perform_any_fota(dut_fota, bundle_id, timeout=CLOUD_TIMEOUT):
         functools.partial(dut_fota.fota.get_fota_status, dut_fota.data['job_id']),
         "IN_PROGRESS",
         "FOTA status",
-        CLOUD_TIMEOUT
+        timeout
     )
 
     reset_device()
@@ -136,7 +136,7 @@ def perform_any_fota(dut_fota, bundle_id, timeout=CLOUD_TIMEOUT):
         functools.partial(dut_fota.fota.get_fota_status, dut_fota.data['job_id']),
         "COMPLETED",
         "FOTA status",
-        CLOUD_TIMEOUT
+        timeout
     )
 
 def test_coap_mfw_delta_fota(dut_fota, coap_fota_hex_file):
