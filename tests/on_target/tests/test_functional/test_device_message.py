@@ -55,7 +55,7 @@ def test_rest_device_message(dut_cloud, rest_device_message_hex_file):
     Test that verifies that device can connect to nRF Cloud REST and send device messages.
     '''
 
-    flash_device(os.path.abspath(coap_device_message_hex_file))
+    flash_device(os.path.abspath(rest_device_message_hex_file))
     dut_cloud.uart.xfactoryreset()
     dut_cloud.uart.flush()
 
