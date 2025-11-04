@@ -177,6 +177,7 @@ jobs:
           ARTIFACT_PATH: ${{ env.ARTIFACT_PATH }}
           ARTIFACT_VERSION: ${{ env.ARTIFACT_VERSION }}
           BASEURL: ${{ env.NRFCLOUD_URL }}
+          SAMPLE_GROUP: ${{ inputs.group }}
         run: |
           rm -rf results outcomes || true
           mkdir -p results

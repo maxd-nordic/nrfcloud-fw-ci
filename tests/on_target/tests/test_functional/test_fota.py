@@ -11,8 +11,11 @@ from utils.flash_tools import flash_device, reset_device
 logger = get_logger()
 
 CLOUD_TIMEOUT = 60 * 10
+FMFU_TIMEOUT = 60 * 60
 
 ARTIFACT_VERSION = os.getenv('ARTIFACT_VERSION')
+APP_BUNDLEID = os.getenv("APP_BUNDLEID", None)
+SAMPLE_GROUP = os.getenv("SAMPLE_GROUP", None)
 
 supported_mfw_versions = {
     "mfw_nrf9160_1.3.6" : {
@@ -65,8 +68,6 @@ supported_mfw_versions = {
     },
 }
 
-APP_BUNDLEID = os.getenv("APP_BUNDLEID", None)
-
 def await_nrfcloud(func, expected, field, timeout, break_value="CANCELLED"):
     start = time.time()
     logger.info(f"Awaiting {field} == {expected} in nrfcloud shadow...")
@@ -104,8 +105,7 @@ def setup_fota_sample(dut_fota, hex_file):
     dut_fota.uart.wait_for_str_ordered(
         [
             "Connected to LTE",
-            "nrf_cloud_info: Modem FW:",
-            "nrf_cloud_coap_transport: Authorized",
+            "nrf_cloud_info: Modem FW:"
         ],
         timeout=CLOUD_TIMEOUT
     )
@@ -140,12 +140,48 @@ def perform_any_fota(dut_fota, bundle_id, timeout=CLOUD_TIMEOUT):
         CLOUD_TIMEOUT
     )
 
-def test_mfw_delta_fota(dut_fota, coap_fota_hex_file):
+def test_coap_mfw_delta_fota(dut_fota, coap_fota_hex_file):
     '''
-    Test that verifies that device can connect to nRF Cloud and perform MFW delta FOTA update.
+    Test that verifies that device can connect to nRF Cloud CoAP and perform MFW delta FOTA update.
     '''
 
+    if SAMPLE_GROUP != "coap":
+        pytest.skip("Skipping CoAP FOTA test for non-CoAP sample group")
+
     setup_fota_sample(dut_fota, coap_fota_hex_file)
+
+    dut_fota.uart.wait_for_str("nrf_cloud_coap_transport: Authorized")
+
+    current_version = parse_mfw_version_from_log(dut_fota.uart.whole_log)
+
+    if not current_version:
+        raise RuntimeError(f"Failed to find current modem FW version")
+
+    if current_version in supported_mfw_versions:
+        bundle_id = supported_mfw_versions[current_version]["bundle_id_delta"]
+        new_version = supported_mfw_versions[current_version]["new_version_delta"]
+    else:
+        raise RuntimeError(f"Unexpected starting modem FW version: {current_version}")
+
+    perform_any_fota(dut_fota, bundle_id)
+
+    logger.info("Verifying new modem FW version...")
+    await_nrfcloud(
+        functools.partial(get_modemversion, dut_fota),
+        new_version,
+        "modemFirmware",
+        CLOUD_TIMEOUT
+    )
+
+def test_rest_mfw_delta_fota(dut_fota, rest_fota_hex_file):
+    '''
+    Test that verifies that device can connect to nRF Cloud REST and perform MFW delta FOTA update.
+    '''
+
+    if SAMPLE_GROUP != "rest":
+        pytest.skip("Skipping REST FOTA test for non-REST sample group")
+
+    setup_fota_sample(dut_fota, rest_fota_hex_file)
 
     current_version = parse_mfw_version_from_log(dut_fota.uart.whole_log)
 
@@ -169,12 +205,17 @@ def test_mfw_delta_fota(dut_fota, coap_fota_hex_file):
     )
 
 @pytest.mark.slow
-def test_mfw_full_fota(dut_fota, coap_fota_fmfu_hex_file):
+def test_coap_mfw_full_fota(dut_fota, coap_fota_fmfu_hex_file):
     '''
-    Test that verifies that device can connect to nRF Cloud and perform MFW full FOTA update.
+    Test that verifies that device can connect to nRF Cloud CoAP and perform MFW full FOTA update.
     '''
 
+    if SAMPLE_GROUP != "coap":
+        pytest.skip("Skipping CoAP FOTA test for non-CoAP sample group")
+
     setup_fota_sample(dut_fota, coap_fota_fmfu_hex_file)
+
+    dut_fota.uart.wait_for_str("nrf_cloud_coap_transport: Authorized")
 
     current_version = parse_mfw_version_from_log(dut_fota.uart.whole_log)
 
@@ -187,7 +228,7 @@ def test_mfw_full_fota(dut_fota, coap_fota_fmfu_hex_file):
     else:
         raise RuntimeError(f"Unexpected starting modem FW version: {current_version}")
 
-    perform_any_fota(dut_fota, bundle_id, timeout=20 * 60)
+    perform_any_fota(dut_fota, bundle_id, timeout=FMFU_TIMEOUT)
 
     logger.info("Verifying new modem FW version...")
     await_nrfcloud(
@@ -197,15 +238,82 @@ def test_mfw_full_fota(dut_fota, coap_fota_fmfu_hex_file):
         CLOUD_TIMEOUT
     )
 
-def test_app_fota(dut_fota, coap_fota_hex_file, coap_fota_test_zip_file):
+
+@pytest.mark.slow
+def test_rest_mfw_full_fota(dut_fota, rest_fota_fmfu_hex_file):
     '''
-    Test that verifies that device can connect to nRF Cloud and perform application FOTA update.
+    Test that verifies that device can connect to nRF Cloud REST and perform MFW full FOTA update.
     '''
+
+    if SAMPLE_GROUP != "rest":
+        pytest.skip("Skipping REST FOTA test for non-REST sample group")
+
+    setup_fota_sample(dut_fota, rest_fota_fmfu_hex_file)
+
+    current_version = parse_mfw_version_from_log(dut_fota.uart.whole_log)
+
+    if not current_version:
+        raise RuntimeError(f"Failed to find current modem FW version")
+
+    if current_version in supported_mfw_versions:
+        bundle_id = supported_mfw_versions[current_version]["bundle_id_full"]
+        new_version = supported_mfw_versions[current_version]["new_version_full"]
+    else:
+        raise RuntimeError(f"Unexpected starting modem FW version: {current_version}")
+
+    perform_any_fota(dut_fota, bundle_id, timeout=FMFU_TIMEOUT)
+
+    logger.info("Verifying new modem FW version...")
+    await_nrfcloud(
+        functools.partial(get_modemversion, dut_fota),
+        new_version,
+        "modemFirmware",
+        CLOUD_TIMEOUT
+    )
+
+def test_coap_app_fota(dut_fota, coap_fota_hex_file, coap_fota_test_zip_file):
+    '''
+    Test that verifies that device can connect to nRF Cloud CoAP and perform application FOTA update.
+    '''
+
+    if SAMPLE_GROUP != "coap":
+        pytest.skip("Skipping CoAP FOTA test for non-CoAP sample group")
+
     bundle_id = dut_fota.fota.upload_zephyr_zip(
         zip_path=coap_fota_test_zip_file,
         version="1.0.0-fotatest",
         name=ARTIFACT_VERSION
     )
+
+    setup_fota_sample(dut_fota, coap_fota_hex_file)
+
+    dut_fota.uart.wait_for_str("nrf_cloud_coap_transport: Authorized")
+
+    try:
+        perform_any_fota(dut_fota, bundle_id)
+    except Exception as e:
+        raise e
+    finally:
+        dut_fota.fota.delete_bundle(bundle_id)
+
+    if "1.0.0-fotatest" not in dut_fota.uart.whole_log:
+        raise RuntimeError("Couldn't verify that correct APP is running after FOTA")
+
+def test_rest_app_fota(dut_fota, rest_fota_hex_file, rest_fota_test_zip_file):
+    '''
+    Test that verifies that device can connect to nRF Cloud REST and perform application FOTA update.
+    '''
+
+    if SAMPLE_GROUP != "rest":
+        pytest.skip("Skipping REST FOTA test for non-REST sample group")
+
+    bundle_id = dut_fota.fota.upload_zephyr_zip(
+        zip_path=rest_fota_test_zip_file,
+        version="1.0.0-fotatest",
+        name=ARTIFACT_VERSION
+    )
+
+    setup_fota_sample(dut_fota, rest_fota_hex_file)
 
     try:
         perform_any_fota(dut_fota, bundle_id)
