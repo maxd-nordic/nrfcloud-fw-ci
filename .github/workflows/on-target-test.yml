@@ -164,6 +164,7 @@ jobs:
           LOG_FILENAME: nrfcloud_fw_test_log
           TEST_REPORT_NAME: Firmware Test Report
           ARTIFACT_PATH: ${{ env.ARTIFACT_PATH }}
+          ARTIFACT_VERSION: ${{ env.ARTIFACT_VERSION }}
           BASEURL: ${{ env.NRFCLOUD_URL }}
         run: |
           rm -rf results outcomes || true

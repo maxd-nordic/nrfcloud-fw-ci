@@ -115,20 +115,6 @@ def dut_fota(dut_board):
     )
     fota.cancel_incomplete_jobs(device_id)
 
-
-@pytest.fixture(scope="module")
-def dut_traces(dut_board):
-    all_uarts = get_uarts()
-    trace_uart_string = all_uarts[1]
-    uart_trace = UartBinary(trace_uart_string)
-
-    yield types.SimpleNamespace(
-        **dut_board.__dict__,
-        trace=uart_trace,
-        )
-
-    uart_trace.stop()
-
 def find_hex_file(test_name):
     potential_path = os.path.join(ARTIFACT_PATH, f"{RUNNER_DEVICE_TYPE}-{test_name}/{HEX_FILE_NAME}")
     if os.path.isfile(potential_path):
@@ -148,8 +134,13 @@ def coap_fota_hex_file():
 
 @pytest.fixture(scope="session")
 def coap_fota_fmfu_hex_file():
-    return find_hex_file("nrf_cloud_coap_fota_fmfu") or pytest.fail("HEX file not found")
+    # just skip if HEX file not found, thingy91 doesn't have support for fmfu because of missing external flash
+    return find_hex_file("nrf_cloud_coap_fota_fmfu") or pytest.skip("HEX file not found")
 
 @pytest.fixture(scope="session")
-def coap_fota_test_hex_file():
-    return find_hex_file("nrf_cloud_coap_fota_test") or find_hex_file("nrf_cloud_coap_fota_fmfu") or pytest.fail("HEX file not found")
+def coap_fota_test_zip_file():
+    for test_name in ["nrf_cloud_coap_fota_test", "nrf_cloud_coap_fota_fmfu"]:
+        potential_path = os.path.join(ARTIFACT_PATH, f"{RUNNER_DEVICE_TYPE}-{test_name}/dfu_application.zip")
+        if os.path.isfile(potential_path):
+            return potential_path
+    pytest.fail("ZIP file not found")
