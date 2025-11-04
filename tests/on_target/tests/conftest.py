@@ -122,15 +122,15 @@ def find_hex_file(test_name):
 
 @pytest.fixture(scope="session")
 def coap_device_message_hex_file():
-    return find_hex_file("nrf_cloud_coap_device_message") or pytest.fail("HEX file not found")
+    return find_hex_file("nrf_cloud_coap_device_message") or pytest.skip("HEX file not found")
 
 @pytest.fixture(scope="session")
 def coap_cell_location_hex_file():
-    return find_hex_file("nrf_cloud_coap_cell_location") or pytest.fail("HEX file not found")
+    return find_hex_file("nrf_cloud_coap_cell_location") or pytest.skip("HEX file not found")
 
 @pytest.fixture(scope="session")
 def coap_fota_hex_file():
-    return find_hex_file("nrf_cloud_coap_fota") or pytest.fail("HEX file not found")
+    return find_hex_file("nrf_cloud_coap_fota") or pytest.skip("HEX file not found")
 
 @pytest.fixture(scope="session")
 def coap_fota_fmfu_hex_file():
@@ -143,4 +143,29 @@ def coap_fota_test_zip_file():
         potential_path = os.path.join(ARTIFACT_PATH, f"{RUNNER_DEVICE_TYPE}-{test_name}/dfu_application.zip")
         if os.path.isfile(potential_path):
             return potential_path
-    pytest.fail("ZIP file not found")
+    pytest.skip("ZIP file not found")
+
+@pytest.fixture(scope="session")
+def nrf_cloud_rest_device_message_hex_file():
+    return find_hex_file("nrf_cloud_rest_device_message") or pytest.skip("HEX file not found")
+
+@pytest.fixture(scope="session")
+def nrf_cloud_rest_cell_location_hex_file():
+    return find_hex_file("nrf_cloud_rest_cell_location") or pytest.skip("HEX file not found")
+
+@pytest.fixture(scope="session")
+def nrf_cloud_rest_fota_hex_file():
+    return find_hex_file("nrf_cloud_rest_fota") or pytest.skip("HEX file not found")
+
+@pytest.fixture(scope="session")
+def nrf_cloud_rest_fota_fmfu_hex_file():
+    # just skip if HEX file not found, thingy91 doesn't have support for fmfu because of missing external flash
+    return find_hex_file("nrf_cloud_rest_fota_fmfu") or pytest.skip("HEX file not found")
+
+@pytest.fixture(scope="session")
+def nrf_cloud_rest_fota_test_zip_file():
+    for test_name in ["nrf_cloud_rest_fota_test", "nrf_cloud_rest_fota_fmfu"]:
+        potential_path = os.path.join(ARTIFACT_PATH, f"{RUNNER_DEVICE_TYPE}-{test_name}/dfu_application.zip")
+        if os.path.isfile(potential_path):
+            return potential_path
+    pytest.skip("ZIP file not found")

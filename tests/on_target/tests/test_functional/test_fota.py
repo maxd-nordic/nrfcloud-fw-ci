@@ -15,7 +15,6 @@ FMFU_TIMEOUT = 60 * 60
 
 ARTIFACT_VERSION = os.getenv('ARTIFACT_VERSION')
 APP_BUNDLEID = os.getenv("APP_BUNDLEID", None)
-SAMPLE_GROUP = os.getenv("SAMPLE_GROUP", None)
 
 supported_mfw_versions = {
     "mfw_nrf9160_1.3.6" : {
@@ -145,9 +144,6 @@ def test_coap_mfw_delta_fota(dut_fota, coap_fota_hex_file):
     Test that verifies that device can connect to nRF Cloud CoAP and perform MFW delta FOTA update.
     '''
 
-    if SAMPLE_GROUP != "coap":
-        pytest.skip("Skipping CoAP FOTA test for non-CoAP sample group")
-
     setup_fota_sample(dut_fota, coap_fota_hex_file)
 
     dut_fota.uart.wait_for_str("nrf_cloud_coap_transport: Authorized")
@@ -178,9 +174,6 @@ def test_rest_mfw_delta_fota(dut_fota, rest_fota_hex_file):
     Test that verifies that device can connect to nRF Cloud REST and perform MFW delta FOTA update.
     '''
 
-    if SAMPLE_GROUP != "rest":
-        pytest.skip("Skipping REST FOTA test for non-REST sample group")
-
     setup_fota_sample(dut_fota, rest_fota_hex_file)
 
     current_version = parse_mfw_version_from_log(dut_fota.uart.whole_log)
@@ -209,9 +202,6 @@ def test_coap_mfw_full_fota(dut_fota, coap_fota_fmfu_hex_file):
     '''
     Test that verifies that device can connect to nRF Cloud CoAP and perform MFW full FOTA update.
     '''
-
-    if SAMPLE_GROUP != "coap":
-        pytest.skip("Skipping CoAP FOTA test for non-CoAP sample group")
 
     setup_fota_sample(dut_fota, coap_fota_fmfu_hex_file)
 
@@ -245,9 +235,6 @@ def test_rest_mfw_full_fota(dut_fota, rest_fota_fmfu_hex_file):
     Test that verifies that device can connect to nRF Cloud REST and perform MFW full FOTA update.
     '''
 
-    if SAMPLE_GROUP != "rest":
-        pytest.skip("Skipping REST FOTA test for non-REST sample group")
-
     setup_fota_sample(dut_fota, rest_fota_fmfu_hex_file)
 
     current_version = parse_mfw_version_from_log(dut_fota.uart.whole_log)
@@ -276,9 +263,6 @@ def test_coap_app_fota(dut_fota, coap_fota_hex_file, coap_fota_test_zip_file):
     Test that verifies that device can connect to nRF Cloud CoAP and perform application FOTA update.
     '''
 
-    if SAMPLE_GROUP != "coap":
-        pytest.skip("Skipping CoAP FOTA test for non-CoAP sample group")
-
     bundle_id = dut_fota.fota.upload_zephyr_zip(
         zip_path=coap_fota_test_zip_file,
         version="1.0.0-fotatest",
@@ -303,9 +287,6 @@ def test_rest_app_fota(dut_fota, rest_fota_hex_file, rest_fota_test_zip_file):
     '''
     Test that verifies that device can connect to nRF Cloud REST and perform application FOTA update.
     '''
-
-    if SAMPLE_GROUP != "rest":
-        pytest.skip("Skipping REST FOTA test for non-REST sample group")
 
     bundle_id = dut_fota.fota.upload_zephyr_zip(
         zip_path=rest_fota_test_zip_file,

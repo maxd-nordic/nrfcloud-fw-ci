@@ -15,9 +15,6 @@ def test_coap_device_message(dut_cloud, coap_device_message_hex_file):
     Test that verifies that device can connect to nRF Cloud CoAP and send device messages.
     '''
 
-    if SAMPLE_GROUP != "coap":
-        pytest.skip("Skipping CoAP FOTA test for non-CoAP sample group")
-
     flash_device(os.path.abspath(coap_device_message_hex_file))
     dut_cloud.uart.xfactoryreset()
     dut_cloud.uart.flush()
@@ -57,9 +54,6 @@ def test_rest_device_message(dut_cloud, rest_device_message_hex_file):
     '''
     Test that verifies that device can connect to nRF Cloud REST and send device messages.
     '''
-
-    if SAMPLE_GROUP != "rest":
-        pytest.skip("Skipping REST FOTA test for non-REST sample group")
 
     flash_device(os.path.abspath(coap_device_message_hex_file))
     dut_cloud.uart.xfactoryreset()
