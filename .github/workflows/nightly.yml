@@ -50,4 +50,5 @@ jobs:
       ncs-commit: ${{ needs.get-ncs-commit.outputs.commit }}
       device: ${{ matrix.device }}
       recover_device: ${{ inputs.recover_device || false }}
+      group: 'coap'
     secrets: inherit

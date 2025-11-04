@@ -23,6 +23,11 @@ on:
         required: true
         default: false
         type: boolean
+      group:
+        description: 'Build group'
+        required: true
+        default: 'coap'
+        type: string
   workflow_dispatch:
     inputs:
       stage:
@@ -45,6 +50,11 @@ on:
         required: true
         default: false
         type: boolean
+      group:
+        description: 'Build group'
+        required: true
+        default: 'coap'
+        type: string
 
 jobs:
   build:
@@ -54,6 +64,7 @@ jobs:
       stage: ${{ inputs.stage }}
       ncs-commit: ${{ inputs.ncs-commit }}
       device: ${{ inputs.device }}
+      group: ${{ inputs.group }}
 
   target_test:
     # Self-hosted runner is labeled according to the device it is linked with
