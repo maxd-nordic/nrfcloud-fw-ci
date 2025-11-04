@@ -114,7 +114,7 @@ def parse_mfw_version_from_log(log):
     for match in re.finditer(r"Modem FW:\s+(mfw_nrf9..._\d\.\d\.\d(-FOTA-TEST)?)", log, re.MULTILINE):
         return match.group(1)
 
-def perform_any_fota(dut_fota, bundle_id):
+def perform_any_fota(dut_fota, bundle_id, timeout=CLOUD_TIMEOUT):
     try:
         dut_fota.data['job_id'] = dut_fota.fota.create_fota_job(dut_fota.device_id, bundle_id)
         dut_fota.data['bundle_id'] = bundle_id
@@ -187,7 +187,7 @@ def test_mfw_full_fota(dut_fota, coap_fota_fmfu_hex_file):
     else:
         raise RuntimeError(f"Unexpected starting modem FW version: {current_version}")
 
-    perform_any_fota(dut_fota, bundle_id)
+    perform_any_fota(dut_fota, bundle_id, timeout=20 * 60)
 
     logger.info("Verifying new modem FW version...")
     await_nrfcloud(
