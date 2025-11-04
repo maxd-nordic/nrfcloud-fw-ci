@@ -1,9 +1,23 @@
 #!/usr/bin/env bash
 
-BINFILE=/tmp/"$(basename $1)"
-PCAPNGFILE=${1%.gpg}.pcapng
+# Check if any input files provided
+if [ $# -eq 0 ]; then
+    echo "Usage: $0 <file1.gpg> [file2.gpg] [file3.gpg] ..."
+    exit 1
+fi
 
-rm -rf $BINFILE || true
+# Process each input file
+for input_file in "$@"; do
+    echo "Processing: $input_file"
 
-gpg --decrypt --output "$BINFILE" "$1"
-nrfutil trace lte --input-file "$BINFILE" --output-pcapng "$PCAPNGFILE"
+    BINFILE=${input_file%.gpg}
+    PCAPNGFILE=${input_file%.gpg}.pcapng
+
+    rm -rf "$BINFILE" || true
+
+    gpg --decrypt --output "$BINFILE" "$input_file"
+    nrfutil trace lte --input-file "$BINFILE" --output-pcapng "$PCAPNGFILE" && rm -rf "$BINFILE" || true
+
+    echo "Completed: $PCAPNGFILE"
+    echo "---"
+done
