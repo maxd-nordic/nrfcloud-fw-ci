@@ -17,7 +17,7 @@ LOG_FILENAME = os.getenv("LOG_FILENAME", "att_test_log")
 LOG_PREFIX = os.getenv("LOG_PREFIX")
 LOG_PREFIX_COLOR = os.getenv("LOG_PREFIX_COLOR")
 
-LOG_DIR = "outcomes/logs"
+LOG_DIR = "outcomes"
 
 def get_logger(log_level = LOG_LEVEL):
     caller = inspect.stack()[1]
